@@ -1,0 +1,31 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+.output/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.env*
+!.env.example
+*.log
+.DS_Store
+.vercel/
+
+# Local credentials and tool state
+.aws/
+.ssh/
+.codex/
+.agents/
+
+# Temporary files and editor artifacts
+tmp/
+temp/
+.tmp/
+.cache/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

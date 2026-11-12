@@ -1,0 +1,102 @@
+.header {
+  display: grid;
+  grid-template-columns: 15.5% minmax(0, 1fr) auto;
+  width: min(94%, 100rem);
+  min-height: 7rem;
+  margin-top: 2rem;
+  padding: 0;
+  gap: 2.75rem;
+  border: 1px solid var(--border);
+  background: #0c0e0f;
+}
+.header > :global(.wordmark) {
+  width: 100%;
+  min-height: 7rem;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+  font-size: 1.8rem;
+}
+.header :global(.wordmark-dot) {
+  align-self: center;
+  transform: translateY(-0.7rem);
+}
+.header > :global(.header-quote) {
+  margin-right: 2rem;
+}
+.header > :global(.desktop-navigation) {
+  margin: 0;
+}
+.header :global(.desktop-navigation ul) {
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+.header :global(.desktop-navigation li) {
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+.header::before,
+.header::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: 2rem;
+  height: 2rem;
+  background: var(--accent);
+  pointer-events: none;
+}
+.header::before {
+  left: calc(15.5% - 2rem);
+  bottom: -2rem;
+  border-radius: 0 0 0 100%;
+}
+.header::after {
+  left: 15.5%;
+  bottom: 0;
+  border-radius: 0 100% 0 0;
+}
+@media (max-width: 1099px) {
+  .header {
+    grid-template-columns: 12rem minmax(0, 1fr) auto;
+    min-height: 6rem;
+    gap: 1rem;
+    padding-right: 1.5rem;
+  }
+  .header > :global(.wordmark) {
+    min-height: 6rem;
+  }
+  .header :global(.header-quote) {
+    justify-self: end;
+    margin-right: 0;
+  }
+  .header::before {
+    left: calc(12rem - 2rem);
+  }
+  .header::after {
+    left: 12rem;
+  }
+}
+@media (max-width: 767px) {
+  .header {
+    display: flex;
+    width: calc(100% - 2rem);
+    min-height: 5rem;
+    margin-top: 1rem;
+    padding: 0 1rem;
+  }
+  .header > :global(.wordmark) {
+    width: auto;
+    min-height: 5rem;
+    border: 0;
+    font-size: 1.65rem;
+  }
+  .header::before {
+    left: 0;
+    bottom: -1px;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0 100% 0 0;
+  }
+  .header::after {
+    display: none;
+  }
+}
