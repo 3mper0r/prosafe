@@ -8,6 +8,7 @@ import {
   Shirt,
 } from "lucide-react";
 import Link from "next/link";
+import { INDUSTRIES } from "@/features/industries/industries";
 
 const equipment = [
   { name: "Head protection", icon: HardHat },
@@ -80,6 +81,9 @@ export function HomepageOverview() {
             OPEN PROTECTION EXPLORER{" "}
             <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
+          <Link href="/find-your-protection" className="button button-text mt-6 sm:ml-8">
+            FIND EQUIPMENT BY INDUSTRY <ArrowUpRight size={18} aria-hidden="true" />
+          </Link>
         </div>
       </section>
       <section
@@ -96,20 +100,17 @@ export function HomepageOverview() {
           </h2>
         </div>
         <ul className="industry-list">
-          {[
-            "Construction",
-            "Manufacturing",
-            "Logistics",
-            "Energy & utilities",
-          ].map((industry, index) => (
-            <li key={industry}>
+          {INDUSTRIES.map((industry, index) => (
+            <li key={industry.slug}>
               <span className="technical-label">0{index + 1}</span>
-              <span>{industry}</span>
+              <Link href={`/industries/${industry.slug}`} className="flex min-h-11 items-center gap-4 transition-colors hover:text-accent">
+                {industry.name} <ArrowUpRight size={18} aria-hidden="true" />
+              </Link>
             </li>
           ))}
         </ul>
         <p className="technical-label feature-note">
-          INDUSTRY OVERVIEW / DEDICATED COLLECTIONS COMING SOON
+          <Link href="/industries" className="button button-text">EXPLORE ALL INDUSTRIES <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </p>
       </section>
       <section

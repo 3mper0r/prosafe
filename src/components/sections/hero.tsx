@@ -56,10 +56,10 @@ export function Hero() {
               >
                 EXPLORE EQUIPMENT <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
-              <a href="#protection" className={styles.secondary}>
+              <Link href="/find-your-protection" className={styles.secondary}>
                 FIND YOUR PROTECTION{" "}
                 <ArrowUpRight size={15} aria-hidden="true" />
-              </a>
+              </Link>
             </div>
           </div>
           <WorkerPortrait />

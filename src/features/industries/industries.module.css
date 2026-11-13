@@ -1,0 +1,276 @@
+.eyebrow {
+  color: var(--accent);
+  font-family: var(--font-technical);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.assessmentNote {
+  display: grid;
+  gap: 0.5rem;
+  margin-block: 2rem;
+  padding: 1rem 1.25rem;
+  border-left: 2px solid var(--accent);
+  color: var(--foreground-muted);
+  background: var(--surface);
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
+.assessmentNote a {
+  justify-self: start;
+  padding-block: 0.5rem;
+  font-family: var(--font-technical);
+  font-size: 0.625rem;
+  text-underline-offset: 4px;
+}
+
+.assessmentNote a:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+}
+
+.guidedEntry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
+  margin-block: 2rem 3rem;
+}
+
+.guidedEntry > p {
+  max-width: 24rem;
+  color: var(--foreground-muted);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+}
+
+.industryList {
+  border-top: 1px solid var(--border);
+}
+
+.industryCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 2rem 4rem;
+  padding-block: 2.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.industryTitle h2 {
+  margin-top: 0.75rem;
+  font-size: clamp(1.6rem, 2.8vw, 2.75rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+
+.industryTitle a:hover {
+  color: var(--accent);
+}
+
+.industryBody > p {
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+.categoryTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 1.25rem;
+  color: var(--foreground-muted);
+  font-size: 0.6875rem;
+  line-height: 1.8;
+}
+
+.categoryTags li::before {
+  content: "+";
+  color: var(--accent);
+  margin-right: 0.4rem;
+}
+
+.industryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  margin-top: 1rem;
+}
+
+.considerations {
+  margin-top: 3.5rem;
+}
+
+.considerations > h2,
+.categorySection > h2,
+.sectionHeading h2,
+.quotePrompt h2,
+.guidedResult > h2 {
+  margin-top: 0.75rem;
+  font-size: clamp(1.5rem, 2.6vw, 2.5rem);
+  font-weight: 300;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+
+.considerationList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  margin-block: 2rem 3.5rem;
+}
+
+.considerationList li {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.considerationList h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.considerationList p,
+.sectionIntro {
+  margin-top: 0.75rem;
+  color: var(--foreground-muted);
+  font-size: 0.8125rem;
+  line-height: 1.9;
+}
+
+.categorySection {
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.categoryLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.categoryLinks a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  transition: border-color 180ms, color 180ms;
+}
+
+.categoryLinks a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.equipmentSection {
+  margin-top: 3.5rem;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+
+.sectionHeading > div {
+  max-width: 42rem;
+}
+
+.equipmentNote {
+  padding-bottom: 1.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  color: var(--foreground-muted);
+}
+
+.quotePrompt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 3rem;
+  align-items: center;
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.quotePrompt > div > p:last-child {
+  max-width: 34rem;
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  color: var(--foreground-muted);
+}
+
+.guidedForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  max-width: 48rem;
+  margin-block: 2.5rem;
+}
+
+.guidedResult > h2 {
+  margin-bottom: 0.75rem;
+}
+
+.guidedResult > a {
+  margin-bottom: 2rem;
+}
+
+.unselected {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 1099px) {
+  .industryCard {
+    gap: 2rem;
+  }
+  .considerationList {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+  .quotePrompt {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .quotePrompt > a {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 767px) {
+  .industryCard {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    padding-block: 2rem;
+  }
+  .guidedForm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .guidedForm > button,
+  .guidedEntry > a {
+    width: 100%;
+  }
+  .categoryLinks {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .quotePrompt > a {
+    width: 100%;
+    justify-self: stretch;
+  }
+}

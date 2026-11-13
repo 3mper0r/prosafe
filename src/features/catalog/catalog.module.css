@@ -59,7 +59,7 @@
 
 .filters {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.6fr) auto;
+  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 1fr)) auto;
   gap: 1rem;
   align-items: end;
   padding-block: 1rem 2rem;
@@ -175,7 +175,7 @@
   letter-spacing: 0.08em;
 }
 
-.card h2 {
+.card h2, .card h3 {
   margin-top: 0.7rem;
   font-size: 1.25rem;
   font-weight: 500;
@@ -183,7 +183,7 @@
   letter-spacing: -0.025em;
 }
 
-.card h2 svg {
+.card h2 svg, .card h3 svg {
   display: inline;
   margin-left: 0.3rem;
 }
@@ -335,6 +335,9 @@
   .filters > button {
     grid-column: 1 / -1;
     justify-self: start;
+  }
+  .filters > .field:first-child {
+    grid-column: 1 / -1;
   }
 }
 

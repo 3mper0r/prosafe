@@ -2,7 +2,7 @@
 
 **Safety Without Compromise.** Workplace protection solutions for businesses, initially in Kosovo.
 
-M3 adds the equipment catalog at `/products`, individual product pages, and a browser-local quote selection at `/quote`. The approved homepage composition and campaign photograph are preserved. The protection explorer now opens filtered catalog views.
+M4 adds industry discovery at `/industries` and a one-step guided experience at `/find-your-protection`. Both reuse the existing demonstration catalog and browser-local quote selection. The approved homepage composition and campaign photograph are preserved.
 
 ## Setup
 
@@ -45,10 +45,14 @@ The type check generates Next.js route types before running `tsc --noEmit`, so i
 
 `src/features/quote` owns the small client-side selection store and its controls. `useSyncExternalStore` synchronizes controls across routes and tabs without a global provider or state library. Only product IDs and quantities are persisted, under the versioned `prosafe.quote.v1` localStorage key. Invalid or obsolete stored entries are discarded; storage denial falls back to in-memory selection with a visible notice. See [the M3 catalog and quote contract](docs/catalog.md).
 
+`src/features/industries` owns the five typed industry definitions, references to existing category and product IDs, shared equipment collection, and risk-assessment note. Industry details are statically generated. The guided selector and catalog filters use standard GET forms and URL parameters; M4 adds no Client Components or dependencies. See [the industry discovery contract](docs/industries.md).
+
 `design-reference.jpeg` is the supplied design reference, retained outside the public assets directory.
 
-## M3 scope
+## M4 scope
 
 The catalog contains 15 clearly labeled fictional demonstration products, three in each shared protection category. Product names, descriptions, example specifications, and example variants are structured for later replacement with verified manufacturer data. Original category illustrations are placeholders, not product photography. No brands, prices, inventory, certifications, or safety performance claims are asserted.
 
-The quote selection supports adding, quantity changes (1–999), removal, selected-product counts, and browser persistence. Variants are informational; the current selection records products and quantities only. Nothing is submitted. Quote submission belongs to M5. The full-body explorer photograph, real manufacturer data and photography, backend, authentication, checkout, and deployment infrastructure remain outside this milestone. M4 requires separate approval.
+The five industry guides cover Construction, Manufacturing, Logistics & Warehousing, Electrical Work, and Industrial Maintenance. Each includes general workplace considerations, relevant category links, existing demo product cards, and a link to prepare a quote. The catalog combines industry, category, and keyword filters; Find Your Protection shows a collection after one industry selection. These are editorial browsing suggestions, not determinations of required or suitable PPE. Final equipment selection depends on workplace risk assessment and applicable safety requirements.
+
+The existing quote selection supports adding, quantity changes (1–999), removal, selected-product counts, and browser persistence. Variants are informational; the current selection records products and quantities only. Nothing is submitted. Quote submission belongs to M5 and requires separate approval. The full-body explorer photograph, real manufacturer data and photography, backend, authentication, checkout, and deployment infrastructure remain outside this milestone.

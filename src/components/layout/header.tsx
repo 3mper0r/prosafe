@@ -9,7 +9,7 @@ import styles from "./header.module.css";
 
 const navigation = [
   { label: "Products", href: "/products" },
-  { label: "Industries", href: "/#industries" },
+  { label: "Industries", href: "/industries" },
   { label: "Brands", href: null },
   { label: "About", href: "/#about" },
   { label: "Contact", href: "/#contact" },

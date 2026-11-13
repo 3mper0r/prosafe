@@ -6,8 +6,9 @@ import { AddToQuote } from "@/features/quote/add-to-quote";
 import type { Product } from "./types";
 import styles from "./catalog.module.css";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, headingLevel = 2 }: { product: Product; headingLevel?: 2 | 3 }) {
   const image = product.images[0];
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
     <li className={styles.card} data-product-id={product.id}>
       <Link href={`/products/${product.slug}`} className={styles.cardLink}>
@@ -17,7 +18,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <div className={styles.cardBody}>
           <p className={styles.category}>{PRODUCT_CATEGORIES[product.categoryId].label}</p>
-          <h2>{product.name} <ArrowUpRight size={17} aria-hidden="true" /></h2>
+          <Heading>{product.name} <ArrowUpRight size={17} aria-hidden="true" /></Heading>
           <p>{product.summary}</p>
         </div>
       </Link>
