@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { after, test } from "node:test";
 import { compileQuoteSources } from "./helpers/compile-quote.mjs";
 
@@ -251,5 +251,38 @@ test("quote HTTP configuration rejects unsafe origins and insufficient form secr
   } finally {
     if (previousOrigin === undefined) delete process.env.QUOTE_PUBLIC_ORIGIN; else process.env.QUOTE_PUBLIC_ORIGIN = previousOrigin;
     if (previousSecret === undefined) delete process.env.QUOTE_FORM_SECRET; else process.env.QUOTE_FORM_SECRET = previousSecret;
+  }
+});
+
+test("blank optional origin and secret use the local origin and a random signing secret", async () => {
+  const savedOrigin = process.env.QUOTE_PUBLIC_ORIGIN;
+  const savedSecret = process.env.QUOTE_FORM_SECRET;
+  try {
+    process.env.QUOTE_PUBLIC_ORIGIN = "";
+    process.env.QUOTE_FORM_SECRET = "";
+    const handler = fixture(undefined, { expectedOrigin: undefined, secret: undefined });
+    const { token } = await session(handler);
+    const result = await handler.POST(request(token));
+    assert.equal(result.status, 200);
+    assert.equal(handler.deliveries.length, 1);
+  } finally {
+    if (savedOrigin === undefined) delete process.env.QUOTE_PUBLIC_ORIGIN; else process.env.QUOTE_PUBLIC_ORIGIN = savedOrigin;
+    if (savedSecret === undefined) delete process.env.QUOTE_FORM_SECRET; else process.env.QUOTE_FORM_SECRET = savedSecret;
+  }
+});
+
+test("a blank form secret never accepts tokens signed with an empty key", async () => {
+  const savedSecret = process.env.QUOTE_FORM_SECRET;
+  try {
+    process.env.QUOTE_FORM_SECRET = "";
+    const handler = fixture(undefined, { secret: undefined });
+    const issued = "1700000000000.12345678-1234-4234-8234-123456789abc";
+    const signature = createHmac("sha256", "").update(issued).digest("hex");
+    handler.advance(2000);
+    const response = await handler.POST(request(`${issued}.${signature}`));
+    assert.equal(response.status, 403);
+    assert.equal(handler.deliveries.length, 0);
+  } finally {
+    if (savedSecret === undefined) delete process.env.QUOTE_FORM_SECRET; else process.env.QUOTE_FORM_SECRET = savedSecret;
   }
 });

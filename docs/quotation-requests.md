@@ -79,6 +79,8 @@ M5 verification: typecheck, ESLint, and production build passed. All 25 individu
 
 ## Operational limits
 
+M7 adds regression coverage for blank optional environment values: empty `QUOTE_PUBLIC_ORIGIN` now uses the local Host-derived origin, and empty `QUOTE_FORM_SECRET` uses the random process secret instead of an empty signing key. Pin the HTTPS origin and supply a strong shared secret in production. Quote removal now preserves useful keyboard focus. See the complete [M7 launch-readiness review](launch-readiness.md) for current validation, browser coverage, and business/deployment blockers.
+
 There is no database, durable request archive, CRM integration, or cross-device request history. Process-local deduplication and throttling reset on restart and are not distributed guarantees; the provider's idempotency window is finite. The basic honeypot/timing/global limits do not replace operational abuse monitoring, and a shared global limit can temporarily affect legitimate customers during abuse. A shared form secret is necessary across replicas; rotating it invalidates existing sessions.
 
 Without durable storage or delivery webhooks, the application cannot reconcile long-term delivery outcomes, guarantee exactly-once delivery indefinitely, or confirm recipient receipt. The configured provider and mailbox handle accepted request data under the operator's arrangements. Catalog data and illustrations remain demonstrations until approved manufacturer records replace them.

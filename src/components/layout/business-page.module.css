@@ -1,0 +1,152 @@
+.page {
+  min-height: 60vh;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: 1.5rem 4rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.section h2,
+.callout h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+  font-weight: 300;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+
+.body {
+  max-width: 46rem;
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.body > * + * {
+  margin-top: 1rem;
+}
+
+.body strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.body ul {
+  padding-left: 1.25rem;
+  list-style: square;
+}
+
+.body li + li {
+  margin-top: 0.5rem;
+}
+
+.body li::marker {
+  color: var(--accent);
+}
+
+.body a {
+  display: inline-block;
+  padding-block: 0.5rem;
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.body a:hover {
+  color: var(--accent);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+  border-block: 1px solid var(--border);
+}
+
+.facts dt {
+  color: var(--foreground-muted);
+  font-family: var(--font-technical);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.facts dd {
+  margin-top: 0.5rem;
+  font-size: 1.125rem;
+}
+
+.callout,
+.notice,
+.partnerSpace {
+  margin-top: 3rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  background: var(--surface);
+}
+
+.callout {
+  border-top: 2px solid var(--accent);
+}
+
+.callout > p {
+  max-width: 42rem;
+  margin-top: 1rem;
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.9;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  margin-top: 1.5rem;
+}
+
+.notice {
+  border-left: 2px solid var(--accent);
+  font-size: 0.8125rem;
+  line-height: 1.9;
+}
+
+.notice > p:first-child {
+  color: var(--accent);
+  font-size: 0.6875rem;
+}
+
+.notice > p + p {
+  max-width: 50rem;
+  margin-top: 0.75rem;
+  color: var(--foreground-muted);
+}
+
+.partnerSpace {
+  border: 1px dashed var(--border);
+}
+
+.partnerSpace > p:first-child {
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+@media (max-width: 767px) {
+  .section,
+  .facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .section {
+    gap: 1rem;
+  }
+
+  .actions > a {
+    width: 100%;
+  }
+}

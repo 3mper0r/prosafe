@@ -129,6 +129,7 @@ export function HomepageOverview() {
             Our purpose is simple: bring professional safety equipment and a
             complete approach to protection to every working day.
           </p>
+          <Link href="/about" className="button button-text mt-6">ABOUT PROSAFE <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
       </section>
       <section
@@ -154,6 +155,7 @@ export function HomepageOverview() {
             Delivery availability is shown on the quotation page.
           </p>
           <Link href="/quote" className="button button-text mt-6">PREPARE A QUOTATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href="/contact" className="button button-text mt-6 sm:ml-8">BUSINESS CONTACT INFORMATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
         <ArrowUpRight
           className="contact-arrow"

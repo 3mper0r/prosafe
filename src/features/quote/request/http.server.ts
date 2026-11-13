@@ -29,7 +29,7 @@ type Options = {
 /** Dependency injection is for tests; the public route always uses configured delivery. */
 export function createQuoteHandlers(options: Options = {}) {
   const now = options.now ?? Date.now;
-  const secret = options.secret ?? process.env.QUOTE_FORM_SECRET ?? fallbackSecret;
+  const secret = options.secret ?? (process.env.QUOTE_FORM_SECRET || fallbackSecret);
   const buckets = new Map<string, { count: number; expires: number }>();
   let globalWindow = { count: 0, expires: now() + WINDOW };
   const delivery = () => options.delivery === undefined ? getQuoteDelivery() : options.delivery;
@@ -61,7 +61,7 @@ export function createQuoteHandlers(options: Options = {}) {
         const requestUrl = new URL(request.url);
         const host = request.headers.get("host");
         if (host) requestUrl.host = host;
-        const expectedOrigin = options.expectedOrigin ?? process.env.QUOTE_PUBLIC_ORIGIN ?? requestUrl.origin;
+        const expectedOrigin = options.expectedOrigin ?? (process.env.QUOTE_PUBLIC_ORIGIN || requestUrl.origin);
         if (request.headers.get("origin") !== expectedOrigin || request.headers.get("sec-fetch-site") === "cross-site") {
           return failure(403, "origin", "Please submit the request from the PROSAFE website.");
         }

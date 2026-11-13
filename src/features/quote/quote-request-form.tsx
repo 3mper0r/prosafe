@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { QUOTE_LIMITS } from "./request/limits";
 import { validateQuoteRequest } from "./request/validation";
 import type { QuoteErrors } from "./request/types";
@@ -108,6 +109,7 @@ export function QuoteRequestForm({ items, knownProductIds, available, onPending,
       <p className={styles.eyebrow}>BUSINESS ENQUIRIES / REQUEST A QUOTATION</p>
       <h2 id="request-heading">Tell us about your team.</h2>
       <p className={styles.formIntro}>The products and quantities above will accompany your request. Contact details stay in this form and are not saved in browser storage.</p>
+      <p className={styles.formHint}><Link href="/privacy" className="underline underline-offset-4">Privacy information (draft; business details pending)</Link></p>
       <p className={styles.formHint}>Up to {QUOTE_LIMITS.maxItems} products, {QUOTE_LIMITS.maxQuantity} units per product, and {QUOTE_LIMITS.maxTotalQuantity} units in total.</p>
       {!available || session?.available === false ? <p className={styles.storageNotice} role="status">Submission is unavailable in the current demo environment because delivery is not configured. Your selection has not been sent.</p> : null}
       {sessionError && <p className={styles.storageNotice} role="status">We could not prepare the submission session. <button type="button" onClick={refreshSession}>Retry connection</button></p>}

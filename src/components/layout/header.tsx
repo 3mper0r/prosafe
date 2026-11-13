@@ -2,6 +2,7 @@
 
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/ui/wordmark";
 import { QuoteLink } from "@/features/quote/quote-link";
@@ -10,24 +11,18 @@ import styles from "./header.module.css";
 const navigation = [
   { label: "Products", href: "/products" },
   { label: "Industries", href: "/industries" },
-  { label: "Brands", href: null },
-  { label: "About", href: "/#about" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Brands", href: "/brands" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ] as const;
 
 function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
+  const pathname = usePathname();
   return navigation.map((item) => (
     <li key={item.label}>
-      {item.href ? (
-        <Link href={item.href} onClick={onNavigate}>
-          {item.label}
-        </Link>
-      ) : (
-        <span className="navigation-unavailable">
-          {item.label}
-          <span className="soon-label">Soon</span>
-        </span>
-      )}
+      <Link href={item.href} onClick={onNavigate} aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "page" : undefined}>
+        {item.label}
+      </Link>
     </li>
   ));
 }

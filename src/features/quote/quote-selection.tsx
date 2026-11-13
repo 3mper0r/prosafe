@@ -62,7 +62,7 @@ export function QuoteSelection({ products, available }: { products: readonly Pro
           <fieldset disabled={pending} className={styles.selectionFields} id="selected-products" tabIndex={-1} aria-describedby="quote-items-error">
           <legend className="sr-only">Selected products and quantities</legend>
           <ul className={styles.items} aria-label="Selected quote products">
-            {items.map((item) => {
+            {items.map((item, index) => {
               const product = products.find((entry) => entry.id === item.productId);
               if (!product) return null;
               const image = product.images[0];
@@ -78,8 +78,15 @@ export function QuoteSelection({ products, available }: { products: readonly Pro
                   <div className={styles.itemControls}>
                     <QuantityInput productId={product.id} productName={product.name} quantity={item.quantity} />
                     <button type="button" className={styles.remove} aria-label={`Remove ${product.name} from quote`} onClick={() => {
+                      const nextItem = items[index + 1] ?? items[index - 1];
                       removeFromQuote(product.id);
                       setMessage(`${product.name} removed from your quote selection.`);
+                      requestAnimationFrame(() => {
+                        const nextControl = nextItem
+                          ? document.querySelector<HTMLInputElement>(`[data-quote-product="${nextItem.productId}"] input[type="number"]`)
+                          : null;
+                        (nextControl ?? document.getElementById("empty-quote-heading"))?.focus();
+                      });
                     }}><Trash2 size={15} aria-hidden="true" /> Remove</button>
                   </div>
                 </div>
@@ -104,7 +111,7 @@ export function QuoteSelection({ products, available }: { products: readonly Pro
       </> : (
         <section className={styles.empty} aria-labelledby="empty-quote-heading">
           <p className={styles.eyebrow}>YOUR SELECTION / 0 PRODUCTS</p>
-          <h2 id="empty-quote-heading">Start with the equipment.</h2>
+          <h2 id="empty-quote-heading" tabIndex={-1}>Start with the equipment.</h2>
           <p>Add demonstration products from the catalog, then adjust quantities here.</p>
           <Link href="/products" className="button button-primary">EXPLORE EQUIPMENT</Link>
         </section>

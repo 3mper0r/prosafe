@@ -2,7 +2,7 @@
 
 **Safety Without Compromise.** Workplace protection solutions for businesses, initially in Kosovo.
 
-M5 extends `/quote` with a validated B2B quotation request form and optional email delivery. Without delivery configuration, submission remains explicitly unavailable. The catalog, industry discovery, and approved campaign photography are preserved.
+M7 completes integration and QA of the M0–M6 MVP, fixes blank quotation configuration and keyboard focus after item removal, and adds domain-aware search metadata and response security headers. The approved design and photography are preserved. See [launch readiness, validation results, browser limitations, and public launch blockers](docs/launch-readiness.md). The business/legal pages remain incomplete drafts and delivery remains unavailable without configuration.
 
 ## Setup
 
@@ -23,9 +23,12 @@ npm run lint       # ESLint; warnings fail the check
 npm run build      # Production build
 npm start          # Serve the completed production build
 npm run test:quote # Validation, delivery, idempotency, and HTTP security tests
+npm test           # All 30 quote and search-metadata tests
 ```
 
 The type check generates Next.js route types before running `tsc --noEmit`, so it also works on a fresh clone. Next.js maintains the ignored `next-env.d.ts` file.
+
+Leave `SITE_URL` empty for local or staging builds: pages emit noindex, robots excludes crawling, and the sitemap has no URLs. Set the verified HTTPS public origin only after launch approval and rebuild. `QUOTE_PUBLIC_ORIGIN` is a separate runtime setting for quotation security. `.env.example` documents both. Public launch requires completion of the [readiness prerequisites](docs/launch-readiness.md).
 
 ## Architecture
 
@@ -52,7 +55,7 @@ The type check generates Next.js route types before running `tsc --noEmit`, so i
 
 `design-reference.jpeg` is the supplied design reference, retained outside the public assets directory.
 
-## M5 scope
+## Existing M3–M5 functionality
 
 The catalog contains 15 clearly labeled fictional demonstration products, three in each shared protection category. Product names, descriptions, example specifications, and example variants are structured for later replacement with verified manufacturer data. Original category illustrations are placeholders, not product photography. No brands, prices, inventory, certifications, or safety performance claims are asserted.
 
@@ -60,4 +63,4 @@ The five industry guides cover Construction, Manufacturing, Logistics & Warehous
 
 The quote selection supports adding, quantity changes (1–999), removal, selected-product counts, and browser persistence. The form adds business contact details, optional requirements, and required purpose-specific privacy consent. Contact fields stay in page memory and are not persisted to browser storage. Requests contain up to 20 unique products and 5,000 total units. Variants remain informational.
 
-Email submission requires a configured provider and destination. Failures preserve form input and selections; identical retries reuse the delivery idempotency key. Confirmed acceptance clears submitted selections while preserving concurrent changes from another tab. Success means the email provider accepted the request, not guaranteed inbox delivery or an order. No database, accounts, checkout, payments, CRM, or deployment infrastructure is added. Real manufacturer data and photography remain pending. Development stops at M5.
+Email submission requires a configured provider and destination. Failures preserve form input and selections; identical retries reuse the delivery idempotency key. Confirmed acceptance clears submitted selections while preserving concurrent changes from another tab. Success means the email provider accepted the request, not guaranteed inbox delivery or an order. No database, accounts, checkout, payments, CRM, or deployment infrastructure is added. Real manufacturer data and photography remain pending. Development stops at M7. No deployment, commit, or push is performed.

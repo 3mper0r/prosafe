@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import localFont from "next/font/local";
+import { getSiteOrigin } from "@/lib/site-url";
 import "./globals.css";
 
 const displayFont = localFont({
@@ -19,7 +20,11 @@ const bodyFont = localFont({
   fallback: ["Arial", "sans-serif"],
 });
 
+const siteOrigin = getSiteOrigin();
+
 export const metadata: Metadata = {
+  metadataBase: siteOrigin ? new URL(siteOrigin) : undefined,
+  robots: { index: Boolean(siteOrigin), follow: true },
   title: {
     default: "PROSAFE — Safety Without Compromise.",
     template: "%s | PROSAFE",
