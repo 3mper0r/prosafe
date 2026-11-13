@@ -50,7 +50,7 @@ export default async function ProductPage({ params }: Props) {
           <p className={styles.description}>{product.description}</p>
           <AddToQuote productId={product.id} productName={product.name} />
           <Link href="/quote" className={`${styles.textLink} ml-5`}>View quote selection →</Link>
-          <p className={styles.note}>Save a product and quantity locally. Quote submission is not yet available.</p>
+          <p className={styles.note}>Save a product and quantity locally, then review the quotation form. Submission availability is shown there.</p>
           <h2>Technical specifications</h2>
           <p className={styles.note}>Illustrative fields only. These are not verified product specifications.</p>
           <dl className={styles.specs}>{product.specifications.map((spec) => <div key={spec.label}><dt>{spec.label}</dt><dd>{spec.value}</dd></div>)}</dl>

@@ -2,7 +2,7 @@
 
 **Safety Without Compromise.** Workplace protection solutions for businesses, initially in Kosovo.
 
-M4 adds industry discovery at `/industries` and a one-step guided experience at `/find-your-protection`. Both reuse the existing demonstration catalog and browser-local quote selection. The approved homepage composition and campaign photograph are preserved.
+M5 extends `/quote` with a validated B2B quotation request form and optional email delivery. Without delivery configuration, submission remains explicitly unavailable. The catalog, industry discovery, and approved campaign photography are preserved.
 
 ## Setup
 
@@ -22,6 +22,7 @@ npm run typecheck  # Strict TypeScript checks
 npm run lint       # ESLint; warnings fail the check
 npm run build      # Production build
 npm start          # Serve the completed production build
+npm run test:quote # Validation, delivery, idempotency, and HTTP security tests
 ```
 
 The type check generates Next.js route types before running `tsc --noEmit`, so it also works on a fresh clone. Next.js maintains the ignored `next-env.d.ts` file.
@@ -47,12 +48,16 @@ The type check generates Next.js route types before running `tsc --noEmit`, so i
 
 `src/features/industries` owns the five typed industry definitions, references to existing category and product IDs, shared equipment collection, and risk-assessment note. Industry details are statically generated. The guided selector and catalog filters use standard GET forms and URL parameters; M4 adds no Client Components or dependencies. See [the industry discovery contract](docs/industries.md).
 
+`src/features/quote/request` holds shared input validation and server-only delivery, submission, and HTTP protections. `/api/quote` accepts requests only after server validation and delegates delivery through a small adapter interface. Optional Resend integration uses native `fetch`; no email SDK is installed. `/quote` evaluates availability at request time and reports success only after provider acceptance. See [quotation configuration, security, tests, and limits](docs/quotation-requests.md). Copy `.env.example` to `.env.local` and supply an actual verified sender and recipient only when enabling email delivery. Environment files remain ignored.
+
 `design-reference.jpeg` is the supplied design reference, retained outside the public assets directory.
 
-## M4 scope
+## M5 scope
 
 The catalog contains 15 clearly labeled fictional demonstration products, three in each shared protection category. Product names, descriptions, example specifications, and example variants are structured for later replacement with verified manufacturer data. Original category illustrations are placeholders, not product photography. No brands, prices, inventory, certifications, or safety performance claims are asserted.
 
 The five industry guides cover Construction, Manufacturing, Logistics & Warehousing, Electrical Work, and Industrial Maintenance. Each includes general workplace considerations, relevant category links, existing demo product cards, and a link to prepare a quote. The catalog combines industry, category, and keyword filters; Find Your Protection shows a collection after one industry selection. These are editorial browsing suggestions, not determinations of required or suitable PPE. Final equipment selection depends on workplace risk assessment and applicable safety requirements.
 
-The existing quote selection supports adding, quantity changes (1–999), removal, selected-product counts, and browser persistence. Variants are informational; the current selection records products and quantities only. Nothing is submitted. Quote submission belongs to M5 and requires separate approval. The full-body explorer photograph, real manufacturer data and photography, backend, authentication, checkout, and deployment infrastructure remain outside this milestone.
+The quote selection supports adding, quantity changes (1–999), removal, selected-product counts, and browser persistence. The form adds business contact details, optional requirements, and required purpose-specific privacy consent. Contact fields stay in page memory and are not persisted to browser storage. Requests contain up to 20 unique products and 5,000 total units. Variants remain informational.
+
+Email submission requires a configured provider and destination. Failures preserve form input and selections; identical retries reuse the delivery idempotency key. Confirmed acceptance clears submitted selections while preserving concurrent changes from another tab. Success means the email provider accepted the request, not guaranteed inbox delivery or an order. No database, accounts, checkout, payments, CRM, or deployment infrastructure is added. Real manufacturer data and photography remain pending. Development stops at M5.

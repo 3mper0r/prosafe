@@ -4,7 +4,7 @@
 
 - `/products`: server-rendered product grid; standard GET form with `q` and `category` parameters. Search is case-insensitive across names, identifiers, descriptions, category labels, and keywords. Every search term must match; category and search combine. Invalid category IDs fall back to all categories with an explanation.
 - `/products/[slug]`: statically generated product details with metadata, image list, identifier, description, illustrative specifications, optional example variants, and Add to Quote. Unknown slugs return a 404.
-- `/quote`: client-side review of the browser's saved selection. Add from a card or detail page, edit quantities, or remove entries. No submission is implemented.
+- `/quote`: review the browser's saved selection and the M5 B2B request form. Add from a card or detail page, edit quantities, or remove entries. Submission is available only with configured email delivery; see [quotation requests](quotation-requests.md).
 
 `src/lib/product-categories.ts` remains the single category definition. Existing IDs are preserved. Catalog labels and the URL helper extend that shared model; the explorer receives its implemented links through the existing `catalogLinks` prop.
 
@@ -31,9 +31,9 @@ The store validates unknown JSON at the boundary, accepts known product IDs and 
 
 ## Interaction boundaries
 
-Listing and detail content remain Server Components. Only navigation, add controls, the quote counter, and quote review need browser interactivity. There are no new dependencies, backend services, submission controls, authentication, payments, or checkout. Existing focus styling and reduced-motion preferences apply to the added interactions.
+Listing and detail content remain Server Components. Navigation, add controls, the quote counter, quote review, and the M5 request form use browser interactivity. M5 adds the quotation Route Handler and optional delivery adapter, with no new dependencies, authentication, payments, or checkout. Existing focus styling and reduced-motion preferences apply to the interactions.
 
-Quote submission remains reserved for M5. M3 stops at a reviewable local selection.
+M5 adds optional configured submission while preserving the M3 product-and-quantity storage contract. Contact details are not added to this browser storage record.
 
 ## Validation
 

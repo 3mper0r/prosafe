@@ -139,7 +139,7 @@ export function HomepageOverview() {
         <p className="technical-label section-index">05 / BUSINESS ENQUIRIES</p>
         <div>
           <p className="technical-label contact-status">
-            <span className="orange-square" /> QUOTATION SERVICE / COMING SOON
+            <span className="orange-square" /> BUSINESS QUOTATION ENQUIRIES
           </p>
           <h2 id="quote" className="section-heading">
             LET’S TALK
@@ -147,12 +147,13 @@ export function HomepageOverview() {
             PROTECTION<span className="text-accent">.</span>
           </h2>
           <p className="section-intro">
-            Equipping a team starts with a conversation. Direct contact details
-            and B2B quotation requests will be available at launch.
+            Equipping a team starts with a conversation. Build an equipment
+            selection and review the B2B quotation form.
           </p>
           <p className="contact-footnote">
-            This is a homepage preview. Quotation submissions are not yet open.
+            Delivery availability is shown on the quotation page.
           </p>
+          <Link href="/quote" className="button button-text mt-6">PREPARE A QUOTATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
         <ArrowUpRight
           className="contact-arrow"

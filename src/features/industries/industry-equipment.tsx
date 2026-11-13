@@ -46,7 +46,7 @@ export function IndustryEquipment({ industry }: { industry: Industry }) {
         <div>
           <p className={styles.eyebrow}>YOUR TEAM / YOUR SELECTION</p>
           <h2>Bring your equipment list together.</h2>
-          <p>Add examples to your selection and adjust quantities. Quote requests are not open yet.</p>
+          <p>Add examples to your selection and adjust quantities, then review the quotation form and submission availability.</p>
         </div>
         <Link href="/quote" className="button button-primary">
           PREPARE A QUOTE <ArrowUpRight size={17} aria-hidden="true" />

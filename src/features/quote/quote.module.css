@@ -285,3 +285,185 @@
     display: none;
   }
 }
+
+.selectionFields {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+}
+
+.selectionFields:disabled {
+  opacity: 0.65;
+}
+
+.requestSection {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.requestSection > h2, .confirmation h2 {
+  margin-top: 0.75rem;
+  font-size: clamp(1.75rem, 3vw, 3rem);
+  font-weight: 300;
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+}
+
+.formIntro {
+  max-width: 45rem;
+  margin-block: 1rem 2rem;
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+.formFields {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+}
+
+.formFields:disabled {
+  opacity: 0.6;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.formField {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.formField label {
+  font-size: 0.8125rem;
+}
+
+.optional {
+  color: var(--foreground-muted);
+  font-size: 0.6875rem;
+}
+
+.formField input, .formField textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 3.5rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.formField textarea {
+  resize: vertical;
+}
+
+.formField input[aria-invalid="true"], .formField textarea[aria-invalid="true"] {
+  border-color: var(--accent);
+}
+
+.fieldError {
+  color: var(--accent);
+  font-size: 0.75rem;
+  line-height: 1.7;
+}
+
+.formHint {
+  color: var(--foreground-muted);
+  font-size: 0.6875rem;
+  line-height: 1.8;
+  max-width: 50rem;
+}
+
+.consent {
+  display: flex;
+  align-items: start;
+  gap: 0.8rem;
+  margin-block: 1.75rem 0.5rem;
+}
+
+.consent input {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  accent-color: var(--accent);
+}
+
+.consent label {
+  padding-block: 0.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  max-width: 48rem;
+}
+
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.submit {
+  margin-top: 1.75rem;
+}
+
+.submit:disabled {
+  cursor: default;
+}
+
+.formStatus {
+  max-width: 48rem;
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  color: var(--foreground-muted);
+}
+
+.storageNotice button {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  min-height: 44px;
+}
+
+.confirmation {
+  border-top: 2px solid var(--accent);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: var(--surface);
+}
+
+.confirmation > p:not(.eyebrow) {
+  margin-top: 1.5rem;
+  max-width: 48rem;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--foreground-muted);
+}
+
+.confirmation .reference {
+  font-family: var(--font-technical);
+  overflow-wrap: anywhere;
+}
+
+.confirmation > a, .confirmation > button {
+  margin-top: 2rem;
+}
+
+@media (max-width: 767px) {
+  .formGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .submit {
+    width: 100%;
+  }
+}

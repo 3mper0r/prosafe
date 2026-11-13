@@ -2,9 +2,10 @@
 
 import { useSyncExternalStore } from "react";
 import { getProductById } from "@/features/catalog/products";
+import { QUOTE_LIMITS } from "./request/limits";
 
 export const QUOTE_STORAGE_KEY = "prosafe.quote.v1";
-export const MAX_QUANTITY = 999;
+export const MAX_QUANTITY = QUOTE_LIMITS.maxQuantity;
 
 export type QuoteItem = { productId: string; quantity: number };
 type QuoteSnapshot = { items: readonly QuoteItem[]; ready: boolean; persistent: boolean };
@@ -94,6 +95,11 @@ export function setQuoteQuantity(productId: string, quantity: number) {
 
 export function removeFromQuote(productId: string) {
   save(getSnapshot().items.filter((item) => item.productId !== productId));
+}
+
+/** Preserve any items/quantity changes made elsewhere while the request was pending. */
+export function clearSubmittedQuote(submitted: readonly QuoteItem[]) {
+  save(getSnapshot().items.filter((current) => !submitted.some((item) => item.productId === current.productId && item.quantity === current.quantity)));
 }
 
 export function useQuote() {
