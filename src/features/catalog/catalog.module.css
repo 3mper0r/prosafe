@@ -1,0 +1,376 @@
+.page {
+  width: min(94%, 100rem);
+  margin: 0 auto;
+  padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 3vw, 3rem);
+  border-inline: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.eyebrow, .badge, .identifier {
+  font-family: var(--font-technical);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  color: var(--accent);
+}
+
+.intro {
+  max-width: 50rem;
+}
+
+.intro h1, .detailHeading {
+  margin-top: 1rem;
+  font-size: clamp(2.5rem, 5.8vw, 5.75rem);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.055em;
+  overflow-wrap: anywhere;
+}
+
+.intro > p:last-child {
+  max-width: 40rem;
+  margin-top: 1.5rem;
+  color: var(--foreground-muted);
+  line-height: 1.8;
+}
+
+.demoNotice {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  margin-block: 2rem;
+  padding: 1rem 1.25rem;
+  border-left: 2px solid var(--accent);
+  background: var(--surface);
+  font-size: 0.75rem;
+  line-height: 1.8;
+  color: var(--foreground-muted);
+}
+
+.demoNotice strong {
+  flex-shrink: 0;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.6fr) auto;
+  gap: 1rem;
+  align-items: end;
+  padding-block: 1rem 2rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.65rem;
+  font-size: 0.75rem;
+}
+
+.field input, .field select {
+  min-width: 0;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.875rem;
+  border-radius: 0;
+}
+
+.field input::placeholder {
+  color: var(--foreground-muted);
+}
+
+.resultsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  font-size: 0.75rem;
+  text-underline-offset: 4px;
+}
+
+.textLink:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--border);
+}
+
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #171a1c;
+  border-bottom: 1px solid var(--border);
+}
+
+.visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 250ms var(--ease-industrial);
+}
+
+.cardLink:hover .visual img {
+  transform: scale(1.035);
+}
+
+.badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  color: var(--foreground-muted);
+  background: var(--background);
+  font-size: 0.55rem;
+}
+
+.cardBody {
+  padding: 1.5rem;
+}
+
+.category {
+  color: var(--accent);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.card h2 {
+  margin-top: 0.7rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+
+.card h2 svg {
+  display: inline;
+  margin-left: 0.3rem;
+}
+
+.cardBody > p:last-child {
+  color: var(--foreground-muted);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  margin-top: 0.75rem;
+}
+
+.cardFooter {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.identifier {
+  display: block;
+  color: var(--foreground-muted);
+  margin-bottom: 0.8rem;
+  font-size: 0.55rem;
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  padding: 4rem 1.5rem;
+  border: 1px solid var(--border);
+}
+
+.empty h2 {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.empty p {
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  color: var(--foreground-muted);
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.gallery {
+  display: grid;
+  gap: 1rem;
+}
+
+.gallery .visual {
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+}
+
+.gallery figcaption {
+  margin-top: 0.8rem;
+  color: var(--foreground-muted);
+  font-size: 0.6875rem;
+  line-height: 1.7;
+}
+
+.detailHeading {
+  font-size: clamp(2.2rem, 3.6vw, 4rem);
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.9;
+  margin-block: 1.5rem 2rem;
+}
+
+.detailInfo h2 {
+  margin-block: 2.5rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.specs > div {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 1rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
+.specs dt {
+  color: var(--foreground-muted);
+}
+
+.variants {
+  display: grid;
+  gap: 1rem;
+}
+
+.variants dt {
+  color: var(--foreground-muted);
+  font-size: 0.75rem;
+}
+
+.variants dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.variants dd span {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+.note {
+  color: var(--foreground-muted);
+  font-size: 0.6875rem;
+  line-height: 1.8;
+  margin-top: 1rem;
+}
+
+.bottomLink {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 1099px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .filters > button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    width: calc(100% - 2rem);
+    padding: 2.5rem 1rem;
+  }
+  .demoNotice {
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1rem;
+  }
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .filters > button {
+    width: 100%;
+  }
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cardBody {
+    padding: 1.25rem;
+  }
+  .cardFooter {
+    padding: 0 1.25rem 1.25rem;
+  }
+  .detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .detailHeading {
+    font-size: clamp(2.2rem, 9vw, 3rem);
+  }
+  .specs > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+}

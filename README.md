@@ -2,7 +2,7 @@
 
 **Safety Without Compromise.** Workplace protection solutions for businesses, initially in Kosovo.
 
-M2 adds a dedicated interactive protection explorer at `/protection-explorer`. The approved M1.3 homepage and campaign photograph are preserved; the existing protection section now links to the feature.
+M3 adds the equipment catalog at `/products`, individual product pages, and a browser-local quote selection at `/quote`. The approved homepage composition and campaign photograph are preserved. The protection explorer now opens filtered catalog views.
 
 ## Setup
 
@@ -39,12 +39,16 @@ The type check generates Next.js route types before running `tsc --noEmit`, so i
 
 `src/components/ui` contains the shared wordmark; `src/components/layout` contains navigation and footer; `src/components/sections` contains the cinematic hero, campaign portrait, and existing homepage overviews. Scoped CSS Modules preserve the approved composition. The portrait is a Server Component using Next.js Image, proportional cropping, and subtle edge blending. Navigation and the interactive explorer are isolated Client Components. Hover transitions respect reduced-motion preferences; Motion for React is not needed.
 
-`src/features/protection-explorer` owns zone selection, accessible controls, its temporary full-body illustration, and responsive styling. `src/lib/product-categories.ts` supplies the stable shared category identifiers and metadata for later catalog integration. See [the explorer contract and interaction notes](docs/protection-explorer.md). Future catalog and quotation behavior belongs in `src/features/catalog` and `src/features/quote`.
+`src/features/protection-explorer` owns zone selection, accessible controls, its temporary full-body illustration, and responsive styling. `src/lib/product-categories.ts` supplies the shared category identifiers, metadata, and catalog URL helper. See [the explorer contract and interaction notes](docs/protection-explorer.md).
+
+`src/features/catalog` owns the typed demonstration product records, reusable cards, notices, and catalog styling. Listing, search/filter results, metadata, and product details render on the server. A standard GET form keeps filters in the URL and works without client JavaScript. Product detail pages are generated at build time.
+
+`src/features/quote` owns the small client-side selection store and its controls. `useSyncExternalStore` synchronizes controls across routes and tabs without a global provider or state library. Only product IDs and quantities are persisted, under the versioned `prosafe.quote.v1` localStorage key. Invalid or obsolete stored entries are discarded; storage denial falls back to in-memory selection with a visible notice. See [the M3 catalog and quote contract](docs/catalog.md).
 
 `design-reference.jpeg` is the supplied design reference, retained outside the public assets directory.
 
-## M2 scope
+## M3 scope
 
-The homepage protection section opens the functional five-zone explorer. It supports desktop hover/click, touch, and keyboard selection, with category details and an explicit temporary catalog state. Brands, quotation, and contact availability remain marked as pending launch.
+The catalog contains 15 clearly labeled fictional demonstration products, three in each shared protection category. Product names, descriptions, example specifications, and example variants are structured for later replacement with verified manufacturer data. Original category illustrations are placeholders, not product photography. No brands, prices, inventory, certifications, or safety performance claims are asserted.
 
-The full catalog, quotation workflow, backend, database, authentication, payments, and deployment infrastructure remain outside this milestone. Catalog browse controls are disabled until category routes exist; no broken catalog links are rendered. The full-body worker illustration is explicitly temporary. Further development requires separate approval.
+The quote selection supports adding, quantity changes (1–999), removal, selected-product counts, and browser persistence. Variants are informational; the current selection records products and quantities only. Nothing is submitted. Quote submission belongs to M5. The full-body explorer photograph, real manufacturer data and photography, backend, authentication, checkout, and deployment infrastructure remain outside this milestone. M4 requires separate approval.

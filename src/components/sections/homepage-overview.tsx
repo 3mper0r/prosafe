@@ -39,11 +39,11 @@ export function HomepageOverview() {
               workplace protection.
             </p>
           </div>
-          <span className="technical-label preview-label">
-            CATEGORY PREVIEW
+          <Link href="/products" className="technical-label preview-label">
+            EQUIPMENT CATALOG ↗
             <br />
-            FULL CATALOG COMING SOON
-          </span>
+            EXPLORE DEMONSTRATION PRODUCTS
+          </Link>
         </div>
         <ul className="equipment-list">
           {equipment.map(({ name, icon: Icon }, index) => (

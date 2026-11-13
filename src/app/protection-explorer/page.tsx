@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ProtectionExplorer } from "@/features/protection-explorer/protection-explorer";
+import { PRODUCT_CATEGORY_IDS, catalogCategoryHref } from "@/lib/product-categories";
 import styles from "@/features/protection-explorer/protection-explorer.module.css";
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default function ProtectionExplorerPage() {
           selector.
         </p>
       </header>
-      <ProtectionExplorer />
+      <ProtectionExplorer catalogLinks={Object.fromEntries(PRODUCT_CATEGORY_IDS.map((id) => [id, catalogCategoryHref(id)]))} />
     </main>
   );
 }

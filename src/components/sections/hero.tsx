@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUpRight, HardHat, Plus } from "lucide-react";
+import Link from "next/link";
 import { WorkerPortrait } from "./worker-portrait";
 import styles from "./hero.module.css";
 
@@ -49,12 +50,12 @@ export function Hero() {
               <span>PROTECTION</span> <span>IS NOT</span> <span>OPTIONAL.</span>
             </h1>
             <div className={styles.actions}>
-              <a
-                href="#equipment"
+              <Link
+                href="/products"
                 className={`button button-primary ${styles.primary}`}
               >
                 EXPLORE EQUIPMENT <ArrowUpRight size={18} aria-hidden="true" />
-              </a>
+              </Link>
               <a href="#protection" className={styles.secondary}>
                 FIND YOUR PROTECTION{" "}
                 <ArrowUpRight size={15} aria-hidden="true" />
@@ -80,13 +81,13 @@ export function Hero() {
               Professional safety equipment and workplace protection solutions
               for every industry.
             </p>
-            <a href="#equipment" className={styles.panelLink}>
+            <Link href="/products" className={styles.panelLink}>
               Explore protection <ArrowUpRight size={16} aria-hidden="true" />
-            </a>
+            </Link>
             <span className={`technical-label ${styles.panelFootnote}`}>
-              CATEGORY OVERVIEW
+              EQUIPMENT CATALOG
               <br />
-              PRODUCT SPECIFICATIONS AT LAUNCH
+              DEMONSTRATION COLLECTION
             </span>
           </div>
           <a href="#equipment" className={styles.scrollIndicator}>

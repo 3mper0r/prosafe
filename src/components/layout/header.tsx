@@ -1,25 +1,27 @@
 "use client";
 
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/ui/wordmark";
+import { QuoteLink } from "@/features/quote/quote-link";
 import styles from "./header.module.css";
 
 const navigation = [
-  { label: "Products", href: "#equipment" },
-  { label: "Industries", href: "#industries" },
+  { label: "Products", href: "/products" },
+  { label: "Industries", href: "/#industries" },
   { label: "Brands", href: null },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/#contact" },
 ] as const;
 
 function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
   return navigation.map((item) => (
     <li key={item.label}>
       {item.href ? (
-        <a href={item.href} onClick={onNavigate}>
+        <Link href={item.href} onClick={onNavigate}>
           {item.label}
-        </a>
+        </Link>
       ) : (
         <span className="navigation-unavailable">
           {item.label}
@@ -65,9 +67,8 @@ export function Header() {
           <NavigationLinks />
         </ul>
       </nav>
-      <a className="button button-primary header-quote" href="#quote">
-        Request a Quote <ArrowUpRight aria-hidden="true" size={17} />
-      </a>
+      <QuoteLink className={`button button-primary header-quote ${styles.quoteLink}`} />
+      <QuoteLink className={styles.mobileQuote} />
       <button
         ref={triggerRef}
         type="button"
@@ -119,13 +120,10 @@ export function Header() {
           <ul>
             <NavigationLinks onNavigate={() => setIsOpen(false)} />
           </ul>
-          <a
+          <QuoteLink
             className="button button-primary"
-            href="#quote"
-            onClick={() => setIsOpen(false)}
-          >
-            Request a Quote <ArrowUpRight aria-hidden="true" size={18} />
-          </a>
+            onNavigate={() => setIsOpen(false)}
+          />
         </nav>
         <p className="technical-label mobile-menu-slogan">
           Safety without compromise.

@@ -23,7 +23,7 @@ The repository contained only a homepage “coming soon” note before M2. The i
 
 Import `ProductCategoryId` for the identifier union and `PRODUCT_CATEGORIES` for metadata. Treat identifiers as a public contract when adding catalog data.
 
-Use `<ProtectionExplorer />` to render the feature. Its optional `catalogLinks: CatalogCategoryLinks` prop accepts implemented internal destinations keyed by the shared category IDs. Missing entries render a disabled category-specific browse button and a visible “Catalog coming soon” explanation. Supply links only after their destinations exist. M2 supplies none and creates no catalog routes, product records, prices, or certification claims.
+Use `<ProtectionExplorer />` to render the feature. Its optional `catalogLinks: CatalogCategoryLinks` prop accepts implemented internal destinations keyed by the shared category IDs. Missing entries render a disabled category-specific browse button and a visible “Catalog coming soon” explanation. M3 supplies all five destinations using `catalogCategoryHref(id)`, opening `/products?category=<stable-id>`. The reusable component's selection behavior is unchanged.
 
 ## Interaction and accessibility
 
@@ -40,4 +40,4 @@ Run `npm run typecheck`, `npm run lint`, and `npm run build`. Browser interactio
 
 M2 results: all three validation commands passed, and the listed browser checks passed with no JavaScript exceptions. Hash checks confirmed the approved hero, campaign photograph, navigation, application shell, global styles, and dependency manifests were preserved. The homepage overview changed only to expose the explorer entry link.
 
-Remaining integration work is final full-body photography and real category destinations when the catalog milestone is approved. Safari/Firefox and a manual assistive-technology audit are outside the Chromium browser verification performed here.
+M3 connects every category to a working filtered catalog view. Final full-body photography is still pending. Safari/Firefox and a manual assistive-technology audit are outside the Chromium browser verification performed here.

@@ -1,4 +1,8 @@
-# Homepage asset provenance — M1.3
+# PROSAFE asset provenance
+
+## M3 catalog illustrations
+
+The five SVGs in `public/images/catalog/` are original, code-drawn category studies created for the demonstration catalog. They depict generic headwear, eyewear, gloves, clothing, and footwear. They contain no third-party assets, logos, or manufacturer markings. Cards and detail pages label them as category illustrations, not photographs of the fictional product entries. Products in the same category share an illustration. Approved product photography is still required before introducing real inventory.
 
 ## Photography
 
