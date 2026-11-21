@@ -1,22 +1,36 @@
 import "server-only";
-import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { getQuoteDelivery, type QuoteDelivery } from "./delivery.server";
 import { QUOTE_LIMITS } from "./limits";
 import { submitQuoteRequest } from "./submission.server";
 
 const WINDOW = 10 * 60 * 1000;
 const TOKEN_LIFETIME = 2 * 60 * 60 * 1000;
-const fallbackSecret = randomBytes(32).toString("hex");
+const MIN_FORM_SECRET_LENGTH = 32;
 
-export function quoteHttpConfigurationValid() {
-  const origin = process.env.QUOTE_PUBLIC_ORIGIN;
+/**
+ * Sessions are signed only with the configured shared secret. There is no
+ * generated fallback: separate processes or Worker isolates would each hold a
+ * different key, and runtimes such as Cloudflare Workers disallow generating
+ * random values while a module is first evaluated. Missing or short secrets
+ * keep submission unavailable (fail closed).
+ */
+function configuredFormSecret(): string | null {
   const secret = process.env.QUOTE_FORM_SECRET;
-  if (secret && secret.length < 32) return false;
+  return secret && secret.length >= MIN_FORM_SECRET_LENGTH ? secret : null;
+}
+
+function originConfigurationValid() {
+  const origin = process.env.QUOTE_PUBLIC_ORIGIN;
   if (!origin) return true;
   try {
     const url = new URL(origin);
     return url.origin === origin && (url.protocol === "https:" || (url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname)));
   } catch { return false; }
+}
+
+export function quoteHttpConfigurationValid() {
+  return configuredFormSecret() !== null && originConfigurationValid();
 }
 
 type Options = {
@@ -29,12 +43,13 @@ type Options = {
 /** Dependency injection is for tests; the public route always uses configured delivery. */
 export function createQuoteHandlers(options: Options = {}) {
   const now = options.now ?? Date.now;
-  const secret = options.secret ?? (process.env.QUOTE_FORM_SECRET || fallbackSecret);
+  // Read at request time so no secret is captured during module evaluation.
+  const secret = () => options.secret ?? configuredFormSecret();
   const buckets = new Map<string, { count: number; expires: number }>();
   let globalWindow = { count: 0, expires: now() + WINDOW };
   const delivery = () => options.delivery === undefined ? getQuoteDelivery() : options.delivery;
-  const available = () => quoteHttpConfigurationValid() && delivery() !== null;
-  const sign = (value: string) => createHmac("sha256", secret).update(value).digest("hex");
+  const available = () => originConfigurationValid() && secret() !== null && delivery() !== null;
+  const sign = (key: string, value: string) => createHmac("sha256", key).update(value).digest("hex");
   const response = (body: unknown, status = 200) => Response.json(body, {
     status,
     headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", ...(status === 429 ? { "Retry-After": "600" } : {}) },
@@ -42,17 +57,20 @@ export function createQuoteHandlers(options: Options = {}) {
   const failure = (status: number, code: string, message: string) => response({ ok: false, code, message }, status);
 
   function validToken(value: string | null) {
-    if (!value || value.length > 200) return false;
+    const key = secret();
+    if (!key || !value || value.length > 200) return false;
     const [timestamp, nonce, signature] = value.split(".");
     if (!timestamp || !/^\d{13}$/.test(timestamp) || !nonce || !/^[a-f0-9-]{36}$/.test(nonce) || !signature || !/^[a-f0-9]{64}$/.test(signature) || value.split(".").length !== 3) return false;
     const age = now() - Number(timestamp);
-    return age >= 2000 && age <= TOKEN_LIFETIME && timingSafeEqual(Buffer.from(signature), Buffer.from(sign(`${timestamp}.${nonce}`)));
+    return age >= 2000 && age <= TOKEN_LIFETIME && timingSafeEqual(Buffer.from(signature), Buffer.from(sign(key, `${timestamp}.${nonce}`)));
   }
 
   return {
     async GET() {
+      const key = secret();
+      if (!available() || !key) return response({ available: false, token: "" });
       const value = `${now()}.${randomUUID()}`;
-      return response({ available: available(), token: `${value}.${sign(value)}` });
+      return response({ available: true, token: `${value}.${sign(key, value)}` });
     },
     async POST(request: Request) {
       try {
@@ -73,7 +91,7 @@ export function createQuoteHandlers(options: Options = {}) {
         if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(key)) return failure(400, "request_id", "Please refresh the quotation page and try again.");
         if (globalWindow.expires <= now()) globalWindow = { count: 0, expires: now() + WINDOW };
         for (const [id, bucket] of buckets) if (bucket.expires <= now()) buckets.delete(id);
-        const bucketKey = sign(token!);
+        const bucketKey = sign(secret()!, token!);
         const bucket = buckets.get(bucketKey) ?? { count: 0, expires: now() + WINDOW };
         if (bucket.count >= 5 || globalWindow.count >= 50 || (!buckets.has(bucketKey) && buckets.size >= 1000)) return failure(429, "rate_limited", "Too many attempts. Please wait ten minutes before trying again.");
         bucket.count += 1;

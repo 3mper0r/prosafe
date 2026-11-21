@@ -26,6 +26,16 @@ npm run test:quote # Validation, delivery, idempotency, and HTTP security tests
 npm test           # All 30 quote and search-metadata tests
 ```
 
+Cloudflare Workers builds use vinext alongside the unchanged Next.js commands:
+
+```sh
+npm run dev:vinext    # Local Workers runtime (port 3001)
+npm run build:vinext  # Production Worker build
+npm run start:vinext  # Serve the Worker build locally in workerd (port 4173)
+```
+
+See [Cloudflare deployment](docs/cloudflare-deployment.md) for configuration, secrets, deploy commands, and Workers Free limits.
+
 The type check generates Next.js route types before running `tsc --noEmit`, so it also works on a fresh clone. Next.js maintains the ignored `next-env.d.ts` file.
 
 Leave `SITE_URL` empty for local or staging builds: pages emit noindex, robots excludes crawling, and the sitemap has no URLs. Set the verified HTTPS public origin only after launch approval and rebuild. `QUOTE_PUBLIC_ORIGIN` is a separate runtime setting for quotation security. `.env.example` documents both. Public launch requires completion of the [readiness prerequisites](docs/launch-readiness.md).

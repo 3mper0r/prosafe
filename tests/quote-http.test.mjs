@@ -231,12 +231,16 @@ test("quote HTTP rate-limits global attempts even with newly issued tokens", asy
   assert.equal((await handler.POST(request(token))).status, 429);
 });
 
-test("quote HTTP configuration rejects unsafe origins and insufficient form secrets", () => {
+test("quote HTTP configuration rejects unsafe origins and missing or insufficient form secrets", () => {
   const previousOrigin = process.env.QUOTE_PUBLIC_ORIGIN;
   const previousSecret = process.env.QUOTE_FORM_SECRET;
   try {
     delete process.env.QUOTE_PUBLIC_ORIGIN;
-    delete process.env.QUOTE_FORM_SECRET;
+    for (const value of [undefined, "", "short", "x".repeat(31)]) {
+      if (value === undefined) delete process.env.QUOTE_FORM_SECRET; else process.env.QUOTE_FORM_SECRET = value;
+      assert.equal(quoteHttpConfigurationValid(), false);
+    }
+    process.env.QUOTE_FORM_SECRET = "test-form-secret-32-characters-long";
     assert.equal(quoteHttpConfigurationValid(), true);
     for (const value of ["http://public.example.test", "https://example.test/path", "https://example.test/", "not-an-origin"]) {
       process.env.QUOTE_PUBLIC_ORIGIN = value;
@@ -246,22 +250,21 @@ test("quote HTTP configuration rejects unsafe origins and insufficient form secr
       process.env.QUOTE_PUBLIC_ORIGIN = value;
       assert.equal(quoteHttpConfigurationValid(), true);
     }
-    process.env.QUOTE_FORM_SECRET = "short";
-    assert.equal(quoteHttpConfigurationValid(), false);
   } finally {
     if (previousOrigin === undefined) delete process.env.QUOTE_PUBLIC_ORIGIN; else process.env.QUOTE_PUBLIC_ORIGIN = previousOrigin;
     if (previousSecret === undefined) delete process.env.QUOTE_FORM_SECRET; else process.env.QUOTE_FORM_SECRET = previousSecret;
   }
 });
 
-test("blank optional origin and secret use the local origin and a random signing secret", async () => {
+test("a blank origin with a configured form secret uses the local origin", async () => {
   const savedOrigin = process.env.QUOTE_PUBLIC_ORIGIN;
   const savedSecret = process.env.QUOTE_FORM_SECRET;
   try {
     process.env.QUOTE_PUBLIC_ORIGIN = "";
-    process.env.QUOTE_FORM_SECRET = "";
+    process.env.QUOTE_FORM_SECRET = "test-form-secret-32-characters-long";
     const handler = fixture(undefined, { expectedOrigin: undefined, secret: undefined });
-    const { token } = await session(handler);
+    const { token, available } = await session(handler);
+    assert.equal(available, true);
     const result = await handler.POST(request(token));
     assert.equal(result.status, 200);
     assert.equal(handler.deliveries.length, 1);
@@ -271,17 +274,22 @@ test("blank optional origin and secret use the local origin and a random signing
   }
 });
 
-test("a blank form secret never accepts tokens signed with an empty key", async () => {
+test("a missing, blank, or short form secret fails closed without issuing sessions", async () => {
   const savedSecret = process.env.QUOTE_FORM_SECRET;
   try {
-    process.env.QUOTE_FORM_SECRET = "";
-    const handler = fixture(undefined, { secret: undefined });
-    const issued = "1700000000000.12345678-1234-4234-8234-123456789abc";
-    const signature = createHmac("sha256", "").update(issued).digest("hex");
-    handler.advance(2000);
-    const response = await handler.POST(request(`${issued}.${signature}`));
-    assert.equal(response.status, 403);
-    assert.equal(handler.deliveries.length, 0);
+    for (const value of [undefined, "", "short"]) {
+      if (value === undefined) delete process.env.QUOTE_FORM_SECRET; else process.env.QUOTE_FORM_SECRET = value;
+      const handler = fixture(undefined, { secret: undefined });
+      const state = await session(handler);
+      assert.deepEqual(state, { available: false, token: "" });
+      const issued = "1700000000000.12345678-1234-4234-8234-123456789abc";
+      for (const key of ["", value ?? ""]) {
+        const response = await handler.POST(request(`${issued}.${createHmac("sha256", key).update(issued).digest("hex")}`));
+        assert.equal(response.status, 503);
+        assert.equal((await response.json()).code, "unavailable");
+      }
+      assert.equal(handler.deliveries.length, 0);
+    }
   } finally {
     if (savedSecret === undefined) delete process.env.QUOTE_FORM_SECRET; else process.env.QUOTE_FORM_SECRET = savedSecret;
   }

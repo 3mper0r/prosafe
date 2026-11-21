@@ -26,9 +26,9 @@ No email account, destination, credentials, or external services are included. C
 | `QUOTE_FROM_EMAIL` | A single sender mailbox on a domain verified in the configured Resend account. |
 | `QUOTE_TO_EMAIL` | The real operator-controlled mailbox that will receive quotation requests. |
 | `QUOTE_PUBLIC_ORIGIN` | Exact public origin, such as the site's actual HTTPS scheme and hostname, with no path or trailing slash. Set this behind reverse proxies or when the public and internal origins differ. HTTP is accepted only for `localhost`/`127.0.0.1` development. |
-| `QUOTE_FORM_SECRET` | Optional shared random secret of at least 32 characters. Set the same strong secret on every instance for stable token validation across restarts/replicas. Without it, one process uses an ephemeral random secret. |
+| `QUOTE_FORM_SECRET` | Required shared random secret of at least 32 characters, used to sign submission sessions. Set the same strong secret on every instance/Worker. Missing, blank, or short values fail closed: `GET /api/quote` reports `available: false` without a token and submissions return `unavailable`. There is no generated fallback. |
 
-Use `.env.local` for local configuration; it is ignored by Git. The tracked `.env.example` contains empty configuration fields, not credentials or invented PROSAFE addresses. Restart the process after changing its environment. Availability is evaluated at request time rather than embedded permanently in the production build.
+Use `.env.local` for local Next.js configuration; it is ignored by Git. On Cloudflare Workers, variables come only from `cloudflare.config.ts` and uploaded secrets; see [Cloudflare deployment](cloudflare-deployment.md). The tracked `.env.example` contains empty configuration fields, not credentials or invented PROSAFE addresses. Restart the process after changing its environment. Availability is evaluated at request time rather than embedded permanently in the production build.
 
 The adapter uses a static subject, the configured sender/recipient, and the validated contact email as Reply-To. It sends plain text and HTML with user content escaped, aborts after ten seconds, rejects redirects, and requires a successful provider response containing an acknowledgement ID. Errors shown to customers are generic; provider diagnostics and personal details are not logged.
 
@@ -79,7 +79,7 @@ M5 verification: typecheck, ESLint, and production build passed. All 25 individu
 
 ## Operational limits
 
-M7 adds regression coverage for blank optional environment values: empty `QUOTE_PUBLIC_ORIGIN` now uses the local Host-derived origin, and empty `QUOTE_FORM_SECRET` uses the random process secret instead of an empty signing key. Pin the HTTPS origin and supply a strong shared secret in production. Quote removal now preserves useful keyboard focus. See the complete [M7 launch-readiness review](launch-readiness.md) for current validation, browser coverage, and business/deployment blockers.
+M7 adds regression coverage for blank optional environment values: empty `QUOTE_PUBLIC_ORIGIN` now uses the local Host-derived origin, and an empty `QUOTE_FORM_SECRET` never signs with an empty key. (Since the Cloudflare preparation, a missing or blank secret disables submission rather than using a random process secret.) Pin the HTTPS origin and supply a strong shared secret in production. Quote removal now preserves useful keyboard focus. See the complete [M7 launch-readiness review](launch-readiness.md) for current validation, browser coverage, and business/deployment blockers.
 
 There is no database, durable request archive, CRM integration, or cross-device request history. Process-local deduplication and throttling reset on restart and are not distributed guarantees; the provider's idempotency window is finite. The basic honeypot/timing/global limits do not replace operational abuse monitoring, and a shared global limit can temporarily affect legitimate customers during abuse. A shared form secret is necessary across replicas; rotating it invalidates existing sessions.
 

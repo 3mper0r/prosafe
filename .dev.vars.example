@@ -1,0 +1,6 @@
+# Local Cloudflare runtime secrets (npm run dev:vinext / start:vinext).
+# Copy to .dev.vars (ignored by Git). Only secrets declared with
+# bindings.secret() in cloudflare.config.ts are read from this file; plain
+# variables come from cloudflare.config.ts.
+# Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+QUOTE_FORM_SECRET=

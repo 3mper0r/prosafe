@@ -16,7 +16,7 @@ This milestone reviews the existing M0–M6 MVP. It adds no product features, in
 
 ## M7 fixes and small integration improvements
 
-1. **Blank optional quotation configuration:** empty `QUOTE_FORM_SECRET` previously produced an empty HMAC signing key; empty `QUOTE_PUBLIC_ORIGIN` rejected normal local requests. Both now use their documented fallbacks, just as an unset variable does. Two regression tests reproduced the failures before the fix and pass afterward. Public deployments must still pin an origin and supply a strong shared secret.
+1. **Blank optional quotation configuration:** empty `QUOTE_FORM_SECRET` previously produced an empty HMAC signing key; empty `QUOTE_PUBLIC_ORIGIN` rejected normal local requests. Both now use their documented fallbacks, just as an unset variable does (the form-secret fallback was later removed; a missing secret now disables submission). Two regression tests reproduced the failures before the fix and pass afterward. Public deployments must still pin an origin and supply a strong shared secret.
 2. **Search metadata:** added `robots.txt` and `sitemap.xml` with no invented public domain or modification dates. Empty `SITE_URL` yields global `noindex`, a crawl exclusion, and no sitemap URLs. A configured HTTPS origin enables a 28-entry sitemap generated from existing pages/products/industries. It excludes the quote page, legal drafts, and query variants. Privacy, Imprint, and Quote remain individually `noindex`.
 3. **Response headers:** added `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin` across routes.
 4. **Keyboard focus after quote removal:** removing an item previously sent focus to the document body. Focus now moves to the next/previous item’s quantity input, or to the empty-selection heading after the final item is removed. This was reproduced with a browser regression check.
@@ -103,7 +103,7 @@ See [M6’s detailed completion list](essential-business-pages.md) and [asset pr
 | `QUOTE_FROM_EMAIL` | Single sender mailbox on a domain verified with the provider. |
 | `QUOTE_TO_EMAIL` | Controlled business destination with approved access and retention. |
 | `QUOTE_PUBLIC_ORIGIN` | Exact HTTPS public origin, no path or trailing slash; coordinate it with the proxy/host configuration. |
-| `QUOTE_FORM_SECRET` | Strong random secret of at least 32 characters, shared across replicas. Rotating it invalidates active sessions. Empty/unset uses an ephemeral process secret for local development. |
+| `QUOTE_FORM_SECRET` | Required strong random secret of at least 32 characters, shared across replicas. Rotating it invalidates active sessions. Empty/unset/short values keep submission disabled (fail closed). |
 
 Before launch, verify real provider acceptance, sender authentication, receipt in the destination mailbox, Reply-To, failure behavior, and operational ownership of inquiries. Local recording fixtures do not verify a real provider account, DNS, deliverability, spam placement, or inbox receipt. See [quotation operations](quotation-requests.md).
 
