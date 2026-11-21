@@ -12,7 +12,7 @@ vinext is in beta. Versions are pinned exactly in `package.json`.
 | `cloudflare.config.ts` | Worker name (`prosafe`), compatibility date, static assets, and every runtime variable/secret declaration. |
 | `.dev.vars.example` | Template for local secrets. Copy to `.dev.vars` (ignored). |
 
-Initial setup: no CDN cache, no data cache, no Cloudflare Images optimization, and no prerendering. Every page is rendered by the Worker; files in `public/` and `/_next/static/*` are served as static assets.
+Setup: no data cache and no Cloudflare Images optimization. `vite.config.ts` enables build-time prerendering with vinext's read-only Static Assets page cache (`staticAssetsAdapter()`): every route that does not read request data (home, business pages, industries, product and industry details, Protection Explorer, robots.txt, sitemap.xml) is rendered once at build time and served from Workers Static Assets. The private cache files under `/_vinext/static-cache/` are only reachable through the Worker (`runWorkerFirst` covers `/*`). `/products`, `/find-your-protection`, `/quote`, and `/api/quote` read the query string or request-time configuration and still render on every request.
 
 ## Scripts
 
@@ -38,7 +38,7 @@ To enable delivery later, after a Resend account, verified sender domain, sender
 1. In `cloudflare.config.ts`, set `QUOTE_DELIVERY_PROVIDER: bindings.text("resend")`, add `QUOTE_FROM_EMAIL`, `QUOTE_TO_EMAIL`, and `QUOTE_PUBLIC_ORIGIN` as `bindings.text(...)`, and add `QUOTE_RESEND_API_KEY: bindings.secret()`.
 2. Upload `QUOTE_RESEND_API_KEY` as a secret (see below), then deploy.
 
-`SITE_URL` is read at request time because no routes are prerendered. Add it as `bindings.text("https://…")` only after launch approval.
+Prerendered pages read `SITE_URL` from the build machine's environment, as with `next build`; request-rendered pages read the Worker variable. After launch approval, set the same HTTPS origin in both the build environment and `cloudflare.config.ts` (`bindings.text("https://…")`), then rebuild and deploy.
 
 ## Deploying
 
@@ -70,6 +70,6 @@ npx cf workers secrets update QUOTE_FORM_SECRET --worker prosafe --type secret_t
 ## Workers Free limits that apply
 
 - 100,000 Worker requests per day. Because every route is Worker-rendered and `runWorkerFirst` covers `/*` except `/_next/static/*`, page and `public/` image requests count toward this limit.
-- 10 ms of CPU per request. After the first deploy, check CPU time per route in Workers Observability. If catalog pages exceed it, prerender static routes (`--cdn-cache=static-assets`) or move to Workers Paid.
+- 10 ms of CPU per request. Workers Logs with invocation logs is enabled in `cloudflare.config.ts` (included on Free: 200,000 events/day, 3-day retention; traces are off), so `$workers.cpuTimeMs` and `$workers.outcome` can be queried per route in Workers Observability. Measured on the staging preview: prerendered routes stay at 1–2 ms median; request-rendered catalog pages need roughly 6–12 ms median (React server rendering scales with the number of product cards), so a substantial share of `/products` and Find Your Protection requests exceed 10 ms. Unknown product/industry slugs also render their 404 on every request.
 - Rate limiting and deduplication in `/api/quote` are in memory and per isolate. Resend idempotency keys still prevent duplicate emails on retry.
 - `next/image` is served unoptimized. The homepage hero PNG (about 1.6 MB) is sent at full size, where Next.js sent a resized WebP of about 40 KB. Cloudflare Images (`--image-optimization=cloudflare-images`) includes 5,000 unique transformations per month on Free; beyond that, new transformations fail with error 9422.

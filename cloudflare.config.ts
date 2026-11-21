@@ -11,6 +11,16 @@ export default defineConfig({
     // Dates on or after 2026-08-04 enable nodejs_compat (node:crypto, Buffer,
     // process.env populated from bindings) by default.
     compatibilityDate: "2026-11-21",
+    // Workers Logs (included on Workers Free: 200,000 events/day, 3-day
+    // retention). Invocation logs record per-request outcome and CPU/wall
+    // time. Traces stay off: Free-plan availability is undocumented and
+    // stored traces are billed under Cloudflare Observability pricing.
+    observability: {
+      enabled: true,
+      headSamplingRate: 1,
+      logs: { enabled: true, headSamplingRate: 1, invocationLogs: true, persist: true },
+      traces: { enabled: false },
+    },
     assets: {
       htmlHandling: "none",
       notFoundHandling: "none",
