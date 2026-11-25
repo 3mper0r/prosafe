@@ -10,18 +10,22 @@ import {
 import Link from "next/link";
 import { INDUSTRIES } from "@/features/industries/industries";
 import type { Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
 
+// Display order and icons are fixed; names come from the dictionary.
 const equipment = [
-  { name: "Head protection", icon: HardHat },
-  { name: "Eye & face protection", icon: Glasses },
-  { name: "Hearing protection", icon: Headphones },
-  { name: "Hand protection", icon: Hand },
-  { name: "Protective workwear", icon: Shirt },
-  { name: "Safety footwear", icon: Footprints },
-];
+  { key: "head", icon: HardHat },
+  { key: "eyeFace", icon: Glasses },
+  { key: "hearing", icon: Headphones },
+  { key: "hand", icon: Hand },
+  { key: "workwear", icon: Shirt },
+  { key: "footwear", icon: Footprints },
+] as const;
 
 export function HomepageOverview({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).home;
   return (
     <>
       <section
@@ -30,32 +34,27 @@ export function HomepageOverview({ locale }: { locale: Locale }) {
         aria-labelledby="equipment-heading"
       >
         <div className="section-heading-row">
-          <p className="technical-label section-index">01 / EQUIPMENT</p>
+          <p className="technical-label section-index">{t.equipment.index}</p>
           <div>
             <h2 id="equipment-heading" className="section-heading">
-              EVERY LAYER
-              <br />
-              OF PROTECTION.
+              <Lines lines={t.equipment.heading} />
             </h2>
             <p className="section-intro">
-              From the first task to the last shift. Discover the essentials of
-              workplace protection.
+              {t.equipment.intro}
             </p>
           </div>
           <Link href={localizePath(locale, "/products")} className="technical-label preview-label">
-            EQUIPMENT CATALOG ↗
-            <br />
-            EXPLORE DEMONSTRATION PRODUCTS
+            <Lines lines={t.equipment.catalogLink} />
           </Link>
         </div>
         <ul className="equipment-list">
-          {equipment.map(({ name, icon: Icon }, index) => (
-            <li key={name}>
+          {equipment.map(({ key, icon: Icon }, index) => (
+            <li key={key}>
               <span className="technical-label equipment-number">
                 0{index + 1}
               </span>
               <Icon aria-hidden="true" size={30} strokeWidth={1.25} />
-              <h3>{name}</h3>
+              <h3>{t.equipment.items[key]}</h3>
             </li>
           ))}
         </ul>
@@ -66,25 +65,23 @@ export function HomepageOverview({ locale }: { locale: Locale }) {
         aria-labelledby="protection-heading"
       >
         <p className="technical-label section-index">
-          02 / A COMPLETE APPROACH
+          {t.approach.index}
         </p>
         <div>
           <h2 id="protection-heading" className="section-heading">
-            THE WORK CHANGES.
+            {t.approach.heading}
             <br />
-            <span className="text-accent">OUR PURPOSE DOESN’T.</span>
+            <span className="text-accent">{t.approach.headingAccent}</span>
           </h2>
           <p className="section-intro">
-            Protection starts with understanding the work. PROSAFE brings
-            equipment and workplace needs together, with the people doing the
-            job at the center.
+            {t.approach.intro}
           </p>
           <Link href={localizePath(locale, "/protection-explorer")} className="button button-text mt-6">
-            OPEN PROTECTION EXPLORER{" "}
+            {t.approach.explorerLink}{" "}
             <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
           <Link href={localizePath(locale, "/find-your-protection")} className="button button-text mt-6 sm:ml-8">
-            FIND EQUIPMENT BY INDUSTRY <ArrowUpRight size={18} aria-hidden="true" />
+            {t.approach.industryLink} <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
         </div>
       </section>
@@ -94,11 +91,9 @@ export function HomepageOverview({ locale }: { locale: Locale }) {
         aria-labelledby="industries-heading"
       >
         <div className="section-heading-row">
-          <p className="technical-label section-index">03 / INDUSTRIES</p>
+          <p className="technical-label section-index">{t.industries.index}</p>
           <h2 id="industries-heading" className="section-heading">
-            DIFFERENT ENVIRONMENTS.
-            <br />
-            ONE STANDARD OF CARE.
+            <Lines lines={t.industries.heading} />
           </h2>
         </div>
         <ul className="industry-list">
@@ -112,7 +107,7 @@ export function HomepageOverview({ locale }: { locale: Locale }) {
           ))}
         </ul>
         <p className="technical-label feature-note">
-          <Link href={localizePath(locale, "/industries")} className="button button-text">EXPLORE ALL INDUSTRIES <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/industries")} className="button button-text">{t.industries.allIndustries} <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </p>
       </section>
       <section
@@ -120,18 +115,15 @@ export function HomepageOverview({ locale }: { locale: Locale }) {
         className="section-shell about-section"
         aria-labelledby="about-heading"
       >
-        <p className="technical-label section-index">04 / ABOUT PROSAFE</p>
+        <p className="technical-label section-index">{t.about.index}</p>
         <div>
           <h2 id="about-heading" className="section-heading">
-            MORE THAN EQUIPMENT.
-            <br />A COMMITMENT TO PEOPLE.
+            <Lines lines={t.about.heading} />
           </h2>
           <p className="section-intro">
-            PROSAFE is a workplace protection partner for businesses in Kosovo.
-            Our purpose is simple: bring professional safety equipment and a
-            complete approach to protection to every working day.
+            {t.about.intro}
           </p>
-          <Link href={localizePath(locale, "/about")} className="button button-text mt-6">ABOUT PROSAFE <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/about")} className="button button-text mt-6">{t.about.link} <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
       </section>
       <section
@@ -139,25 +131,23 @@ export function HomepageOverview({ locale }: { locale: Locale }) {
         className="section-shell contact-section"
         aria-labelledby="quote"
       >
-        <p className="technical-label section-index">05 / BUSINESS ENQUIRIES</p>
+        <p className="technical-label section-index">{t.contact.index}</p>
         <div>
           <p className="technical-label contact-status">
-            <span className="orange-square" /> BUSINESS QUOTATION ENQUIRIES
+            <span className="orange-square" /> {t.contact.status}
           </p>
           <h2 id="quote" className="section-heading">
-            LET’S TALK
-            <br />
-            PROTECTION<span className="text-accent">.</span>
+            <Lines lines={t.contact.heading} />
+            <span className="text-accent">.</span>
           </h2>
           <p className="section-intro">
-            Equipping a team starts with a conversation. Build an equipment
-            selection and review the B2B quotation form.
+            {t.contact.intro}
           </p>
           <p className="contact-footnote">
-            Delivery availability is shown on the quotation page.
+            {t.contact.footnote}
           </p>
-          <Link href={localizePath(locale, "/quote")} className="button button-text mt-6">PREPARE A QUOTATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
-          <Link href={localizePath(locale, "/contact")} className="button button-text mt-6 sm:ml-8">BUSINESS CONTACT INFORMATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/quote")} className="button button-text mt-6">{t.contact.quoteLink} <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/contact")} className="button button-text mt-6 sm:ml-8">{t.contact.contactLink} <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
         <ArrowUpRight
           className="contact-arrow"

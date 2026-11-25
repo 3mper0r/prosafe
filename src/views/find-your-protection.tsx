@@ -10,12 +10,13 @@ import catalogStyles from "@/features/catalog/catalog.module.css";
 import styles from "@/features/industries/industries.module.css";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
 
-export const findYourProtectionMetadata: Metadata = {
-  title: "Find Your Protection",
-  description: "Choose an industry to explore relevant protection categories and demonstration equipment from the PROSAFE catalog.",
-};
+export function findYourProtectionMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale).findYourProtection;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
 export function FindYourProtectionView({ locale, searchParams }: {
   locale: Locale;
@@ -24,43 +25,44 @@ export function FindYourProtectionView({ locale, searchParams }: {
   const input = searchParams.industry;
   const industry = typeof input === "string" ? getIndustryBySlug(input) : undefined;
   const invalid = Boolean(input && !industry);
+  const t = getDictionary(locale).findYourProtection;
   return (
     <>
       <a className="skip-link" href="#main-content">{getDictionary(locale).common.skipToContent}</a>
       <Header />
       <main id="main-content" tabIndex={-1} className={catalogStyles.page}>
         <header className={catalogStyles.intro}>
-          <p className={styles.eyebrow}>PROSAFE / FIND YOUR PROTECTION</p>
-          <h1>START WITH<br />YOUR INDUSTRY.</h1>
-          <p>Choose your working environment. Explore a starting collection of equipment categories and demonstration products, then add examples to your quote selection.</p>
+          <p className={styles.eyebrow}>{t.eyebrow}</p>
+          <h1><Lines lines={t.title} /></h1>
+          <p>{t.intro}</p>
         </header>
-        <form key={industry?.slug ?? "unselected"} action={localizePath(locale, "/find-your-protection#discovery-results")} method="get" className={styles.guidedForm} aria-label="Find equipment by industry">
+        <form key={industry?.slug ?? "unselected"} action={localizePath(locale, "/find-your-protection#discovery-results")} method="get" className={styles.guidedForm} aria-label={t.formLabel}>
           <label className={catalogStyles.field}>
-            Your industry
+            {t.industryLabel}
             <select name="industry" defaultValue={industry?.slug ?? ""} required aria-describedby="industry-help">
-              <option value="" disabled>Choose your industry</option>
+              <option value="" disabled>{t.industryPlaceholder}</option>
               {INDUSTRIES.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}
             </select>
           </label>
           <button type="submit" className="button button-primary">
-            SHOW EQUIPMENT <ArrowUpRight size={17} aria-hidden="true" />
+            {t.submit} <ArrowUpRight size={17} aria-hidden="true" />
           </button>
         </form>
-        <p id="industry-help" className={catalogStyles.note}>One industry selection. You can change it at any time.</p>
-        <RiskAssessmentNote />
+        <p id="industry-help" className={catalogStyles.note}>{t.help}</p>
+        <RiskAssessmentNote locale={locale} />
         {industry ? (
           <section id="discovery-results" tabIndex={-1} className={styles.guidedResult} aria-labelledby="discovery-heading">
-            <p className={styles.eyebrow}>YOUR INDUSTRY / EQUIPMENT STARTING POINT</p>
+            <p className={styles.eyebrow}>{t.resultEyebrow}</p>
             <h2 id="discovery-heading">{industry.name}</h2>
             <Link href={localizePath(locale, `/industries/${industry.slug}`)} className={catalogStyles.textLink}>
-              Read the industry guide <ArrowUpRight size={16} aria-hidden="true" />
+              {t.industryGuide} <ArrowUpRight size={16} aria-hidden="true" />
             </Link>
             <IndustryEquipment locale={locale} industry={industry} />
           </section>
         ) : (
-          <section id="discovery-results" tabIndex={-1} className={styles.unselected} aria-label="Industry selection status">
-            <p>{invalid ? "That industry is unavailable. Choose one of the five industries above to continue." : "Choose your industry above to see equipment categories and examples."}</p>
-            <Link href={localizePath(locale, "/industries")} className={catalogStyles.textLink}>Or browse all industry guides →</Link>
+          <section id="discovery-results" tabIndex={-1} className={styles.unselected} aria-label={t.statusLabel}>
+            <p>{invalid ? t.invalidIndustry : t.chooseIndustry}</p>
+            <Link href={localizePath(locale, "/industries")} className={catalogStyles.textLink}>{t.browseGuides}</Link>
           </section>
         )}
       </main>

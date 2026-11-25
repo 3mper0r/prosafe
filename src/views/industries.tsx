@@ -7,46 +7,50 @@ import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
 import catalogStyles from "@/features/catalog/catalog.module.css";
 import styles from "@/features/industries/industries.module.css";
 import type { Locale } from "@/i18n/config";
+import { formatMessage } from "@/i18n/format";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
 
-export const industriesMetadata: Metadata = {
-  title: "Industries",
-  description: "Explore PROSAFE demonstration equipment by industry, from construction and manufacturing to logistics, electrical work, and industrial maintenance.",
-};
+export function industriesMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale).industries;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
 export function IndustriesView({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).industries;
   return (
     <main id="main-content" tabIndex={-1} className={catalogStyles.page}>
       <header className={catalogStyles.intro}>
-        <p className={styles.eyebrow}>PROSAFE / INDUSTRIES</p>
-        <h1>DIFFERENT WORK.<br />ONE PURPOSE.</h1>
-        <p>Start with your working environment. Explore protection categories and demonstration equipment for your industry.</p>
+        <p className={styles.eyebrow}>{t.eyebrow}</p>
+        <h1><Lines lines={t.title} /></h1>
+        <p>{t.intro}</p>
       </header>
       <div className={styles.guidedEntry}>
         <Link href={localizePath(locale, "/find-your-protection")} className="button button-primary">
-          FIND YOUR PROTECTION <ArrowUpRight size={17} aria-hidden="true" />
+          {t.findProtection} <ArrowUpRight size={17} aria-hidden="true" />
         </Link>
-        <p>Choose your industry in one step to see a starting collection of equipment examples.</p>
+        <p>{t.findProtectionNote}</p>
       </div>
-      <RiskAssessmentNote />
-      <ul className={styles.industryList} aria-label="Industries">
+      <RiskAssessmentNote locale={locale} />
+      <ul className={styles.industryList} aria-label={t.listLabel}>
         {INDUSTRIES.map((industry, index) => (
           <li key={industry.slug} className={styles.industryCard} data-industry={industry.slug}>
             <div className={styles.industryTitle}>
-              <p className={styles.eyebrow}>0{index + 1} / INDUSTRY</p>
+              <p className={styles.eyebrow}>{formatMessage(t.cardEyebrow, { number: `0${index + 1}` })}</p>
               <h2><Link href={localizePath(locale, `/industries/${industry.slug}`)}>{industry.name}</Link></h2>
             </div>
             <div className={styles.industryBody}>
               <p>{industry.description}</p>
-              <ul className={styles.categoryTags} aria-label={`${industry.name} protection categories`}>
+              <ul className={styles.categoryTags} aria-label={formatMessage(t.categoriesLabel, { industry: industry.name })}>
                 {industry.categoryIds.map((id) => <li key={id}>{PRODUCT_CATEGORIES[id].label}</li>)}
               </ul>
               <div className={styles.industryActions}>
                 <Link href={localizePath(locale, `/industries/${industry.slug}`)} className={catalogStyles.textLink}>
-                  Explore industry <ArrowUpRight size={15} aria-hidden="true" />
+                  {t.exploreIndustry} <ArrowUpRight size={15} aria-hidden="true" />
                 </Link>
                 <Link href={localizePath(locale, industryCatalogHref(industry))} className={catalogStyles.textLink}>
-                  Browse demo products <ArrowUpRight size={15} aria-hidden="true" />
+                  {t.browseProducts} <ArrowUpRight size={15} aria-hidden="true" />
                 </Link>
               </div>
             </div>

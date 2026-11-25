@@ -8,17 +8,21 @@ import { INDUSTRIES, getIndustryBySlug, getIndustryProducts, industryCatalogHref
 import { RiskAssessmentNote } from "@/features/industries/risk-assessment-note";
 import styles from "@/features/catalog/catalog.module.css";
 import type { Locale } from "@/i18n/config";
+import { formatMessage, formatPlural } from "@/i18n/format";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
 
-export const productsMetadata: Metadata = {
-  title: "Equipment catalog",
-  description: "Explore the PROSAFE demonstration equipment catalog by protection category and prepare a local quote selection.",
-};
+export function productsMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale).catalog;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
 export function ProductsView({ locale, searchParams: query }: {
   locale: Locale;
   searchParams: { q?: string | string[]; category?: string | string[]; industry?: string | string[] };
 }) {
+  const t = getDictionary(locale).catalog;
   const search = (typeof query.q === "string" ? query.q : "").trim().slice(0, 200);
   const categoryInput = typeof query.category === "string" ? query.category : "";
   const category = isProductCategoryId(categoryInput) ? categoryInput : "";
@@ -33,54 +37,54 @@ export function ProductsView({ locale, searchParams: query }: {
   return (
     <main id="main-content" tabIndex={-1} className={styles.page}>
       <header className={styles.intro}>
-        <p className={styles.eyebrow}>PROSAFE / EQUIPMENT CATALOG</p>
-        <h1>EQUIPMENT.<br />WITH PURPOSE.</h1>
-        <p>Explore protection from head to toe. Find an equipment type and build a selection for your team.</p>
+        <p className={styles.eyebrow}>{t.eyebrow}</p>
+        <h1><Lines lines={t.title} /></h1>
+        <p>{t.intro}</p>
       </header>
-      <DemoNotice />
+      <DemoNotice locale={locale} />
       {industry && <>
-        <RiskAssessmentNote />
-        <Link href={localizePath(locale, `/industries/${industry.slug}`)} className={styles.textLink}>Industry guide / {industry.name} →</Link>
+        <RiskAssessmentNote locale={locale} />
+        <Link href={localizePath(locale, `/industries/${industry.slug}`)} className={styles.textLink}>{formatMessage(t.industryGuide, { industry: industry.name })}</Link>
         {industry.equipmentNote && <p className={styles.note}>{industry.equipmentNote}</p>}
       </>}
-      <form key={JSON.stringify([search, category, industry?.slug])} action={localizePath(locale, "/products")} method="get" className={styles.filters} role="search" aria-label="Search and filter products">
+      <form key={JSON.stringify([search, category, industry?.slug])} action={localizePath(locale, "/products")} method="get" className={styles.filters} role="search" aria-label={t.filtersLabel}>
         <label className={styles.field}>
-          Search equipment
-          <input type="search" name="q" defaultValue={search} placeholder="Product name or keyword" maxLength={200} />
+          {t.searchLabel}
+          <input type="search" name="q" defaultValue={search} placeholder={t.searchPlaceholder} maxLength={200} />
         </label>
         <label className={styles.field}>
-          Protection category
+          {t.categoryLabel}
           <select name="category" defaultValue={category}>
-            <option value="">All categories</option>
+            <option value="">{t.allCategories}</option>
             {PRODUCT_CATEGORY_IDS.map((id) => <option key={id} value={id}>{PRODUCT_CATEGORIES[id].label}</option>)}
           </select>
         </label>
         <label className={styles.field}>
-          Industry
+          {t.industryLabel}
           <select name="industry" defaultValue={industry?.slug ?? ""}>
-            <option value="">All industries</option>
+            <option value="">{t.allIndustries}</option>
             {INDUSTRIES.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}
           </select>
         </label>
-        <button type="submit" className="button button-primary">APPLY FILTERS</button>
+        <button type="submit" className="button button-primary">{t.applyFilters}</button>
       </form>
-      {categoryInput && !category && <p className={styles.note}>Unknown category. Showing all categories instead.</p>}
-      {industryInput && !industry && <p className={styles.note}>Unknown industry. Showing all industries instead.</p>}
+      {categoryInput && !category && <p className={styles.note}>{t.unknownCategory}</p>}
+      {industryInput && !industry && <p className={styles.note}>{t.unknownIndustry}</p>}
       <div className={styles.resultsBar}>
-        <p>{products.length} {products.length === 1 ? "example" : "examples"}{industry ? ` / ${industry.name}` : ""}{category ? ` / ${PRODUCT_CATEGORIES[category].label}` : " / All categories"}{search ? ` matching “${search}”` : ""}</p>
-        {(search || categoryInput || industryInput) && <Link href={localizePath(locale, "/products")} className={styles.textLink}>Clear filters</Link>}
+        <p>{formatPlural(locale, products.length, t.resultCount)}{industry ? formatMessage(t.resultIndustry, { industry: industry.name }) : ""}{category ? formatMessage(t.resultCategory, { category: PRODUCT_CATEGORIES[category].label }) : t.resultAllCategories}{search ? formatMessage(t.resultSearch, { search }) : ""}</p>
+        {(search || categoryInput || industryInput) && <Link href={localizePath(locale, "/products")} className={styles.textLink}>{t.clearFilters}</Link>}
       </div>
       {products.length ? (
-        <ul className={styles.grid} aria-label="Demonstration products">{products.map((product) => <ProductCard key={product.id} locale={locale} product={product} />)}</ul>
+        <ul className={styles.grid} aria-label={t.resultsLabel}>{products.map((product) => <ProductCard key={product.id} locale={locale} product={product} />)}</ul>
       ) : (
         <section className={styles.empty} aria-labelledby="empty-heading">
-          <p className={styles.eyebrow}>NO MATCHING EQUIPMENT</p>
-          <h2 id="empty-heading">Let’s try another search.</h2>
-          <p>Use a different keyword or clear the category and search filters.</p>
-          <Link href={localizePath(locale, industry ? industryCatalogHref(industry) : "/products")} className="button button-primary">{industry ? "VIEW INDUSTRY EXAMPLES" : "VIEW ALL EXAMPLES"}</Link>
+          <p className={styles.eyebrow}>{t.emptyEyebrow}</p>
+          <h2 id="empty-heading">{t.emptyHeading}</h2>
+          <p>{t.emptyBody}</p>
+          <Link href={localizePath(locale, industry ? industryCatalogHref(industry) : "/products")} className="button button-primary">{industry ? t.viewIndustryExamples : t.viewAllExamples}</Link>
         </section>
       )}
-      <div className={styles.bottomLink}><Link href={localizePath(locale, "/protection-explorer")} className={styles.textLink}>Find your category in the protection explorer →</Link></div>
+      <div className={styles.bottomLink}><Link href={localizePath(locale, "/protection-explorer")} className={styles.textLink}>{t.explorerLink}</Link></div>
     </main>
   );
 }

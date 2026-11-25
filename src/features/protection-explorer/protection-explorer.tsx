@@ -7,15 +7,21 @@ import {
   PRODUCT_CATEGORIES,
   type CatalogCategoryLinks,
 } from "@/lib/product-categories";
+import type { Dictionary } from "@/i18n/dictionaries/en";
+import { formatMessage } from "@/i18n/format";
+import { Lines } from "@/i18n/lines";
 import { PROTECTION_ZONES } from "./zones";
 import { WorkerIllustration } from "./worker-illustration";
 import styles from "./protection-explorer.module.css";
 
 type ProtectionExplorerProps = {
+  /** Only this page's widget messages are sent to the browser. */
+  messages: Dictionary["explorer"]["widget"];
   catalogLinks?: CatalogCategoryLinks;
 };
 
 export function ProtectionExplorer({
+  messages: t,
   catalogLinks = {},
 }: ProtectionExplorerProps) {
   const instanceId = useId();
@@ -35,7 +41,7 @@ export function ProtectionExplorer({
       data-selected-zone={selectedZone.id}
     >
       <fieldset className={styles.zonePicker}>
-        <legend>Select a protection zone</legend>
+        <legend>{t.zoneLegend}</legend>
         <div className={styles.zoneOptions}>
           {PROTECTION_ZONES.map((zone) => (
             <label
@@ -58,7 +64,7 @@ export function ProtectionExplorer({
           ))}
         </div>
         <a href={`#${detailsId}`} className={styles.selectionJump}>
-          View {category.name.toLowerCase()}{" "}
+          {formatMessage(t.viewCategory, { category: category.name.toLowerCase() })}{" "}
           <ArrowDown size={16} aria-hidden="true" />
         </a>
       </fieldset>
@@ -69,7 +75,7 @@ export function ProtectionExplorer({
             className={styles.viewer}
             data-selected-zone={selectedZone.id}
             role="group"
-            aria-label="Full-body worker protection hotspots"
+            aria-label={t.hotspotsLabel}
           >
             <WorkerIllustration />
             {PROTECTION_ZONES.map((zone, index) => (
@@ -82,7 +88,7 @@ export function ProtectionExplorer({
                   top: `${zone.position.y}%`,
                 }}
                 data-zone-id={zone.id}
-                aria-label={`${zone.label} — ${PRODUCT_CATEGORIES[zone.categoryId].name}`}
+                aria-label={formatMessage(t.hotspotLabel, { zone: zone.label, category: PRODUCT_CATEGORIES[zone.categoryId].name })}
                 aria-pressed={selectedZone.id === zone.id}
                 aria-controls={detailsId}
                 onClick={() => setSelectedZone(zone)}
@@ -96,9 +102,7 @@ export function ProtectionExplorer({
             ))}
           </div>
           <figcaption>
-            Temporary full-body illustration.
-            <br />
-            Final worker photography will replace this visual.
+            <Lines lines={t.figcaption} />
           </figcaption>
         </figure>
 
@@ -110,7 +114,7 @@ export function ProtectionExplorer({
           data-category-id={selectedZone.categoryId}
         >
           <p className={styles.eyebrow}>
-            SELECTED PROTECTION / {selectedZone.label}
+            {formatMessage(t.selectedEyebrow, { zone: selectedZone.label })}
           </p>
           <div
             aria-live="polite"
@@ -126,7 +130,7 @@ export function ProtectionExplorer({
                 href={catalogHref}
                 className={`button button-primary ${styles.browseButton}`}
               >
-                Browse {category.name.toLowerCase()}{" "}
+                {formatMessage(t.browseCategory, { category: category.name.toLowerCase() })}{" "}
                 <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
             ) : (
@@ -137,19 +141,17 @@ export function ProtectionExplorer({
                   className={styles.unavailableButton}
                   aria-describedby={catalogStatusId}
                 >
-                  Browse {category.name.toLowerCase()}{" "}
+                  {formatMessage(t.browseCategory, { category: category.name.toLowerCase() })}{" "}
                   <ArrowUpRight size={18} aria-hidden="true" />
                 </button>
                 <p id={catalogStatusId} className={styles.catalogStatus}>
-                  Catalog coming soon. This category will become available when
-                  the product catalog launches.
+                  {t.catalogComingSoon}
                 </p>
               </>
             )}
           </div>
           <p className={styles.selectionNote}>
-            Explore another zone using the worker markers or zone selector. Your
-            selection stays visible until you choose another zone.
+            {t.selectionNote}
           </p>
         </section>
       </div>

@@ -7,7 +7,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props) {
-  return industryDetailMetadata((await params).slug);
+  return industryDetailMetadata("sq", (await params).slug);
 }
 
 export default async function Page({ params }: Props) {

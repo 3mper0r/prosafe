@@ -30,10 +30,11 @@ export function BusinessPage({ locale, eyebrow, title, intro, children }: {
   );
 }
 
-export function CompletionNotice({ children }: { children: ReactNode }) {
+export function CompletionNotice({ locale, children }: { locale: Locale; children: ReactNode }) {
+  const t = getDictionary(locale).businessPage;
   return (
-    <aside className={styles.notice} aria-label="Before launch">
-      <p className="technical-label">DRAFT / COMPLETE BEFORE LAUNCH</p>
+    <aside className={styles.notice} aria-label={t.completionLabel}>
+      <p className="technical-label">{t.completionEyebrow}</p>
       <p>{children}</p>
     </aside>
   );

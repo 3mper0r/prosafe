@@ -11,6 +11,6 @@ export function getDictionary(locale: Locale): Dictionary {
 
 /** The small subset of messages that client components need, passed once through LocaleProvider. */
 export function getClientMessages(locale: Locale): ClientMessages {
-  const { common, header, quoteLink } = dictionaries[locale];
-  return { common, header, quoteLink };
+  const { common, header, quoteLink, addToQuote } = dictionaries[locale];
+  return { common, header, quoteLink, addToQuote };
 }

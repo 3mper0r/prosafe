@@ -4,44 +4,47 @@ import { ArrowUpRight } from "lucide-react";
 import { BusinessPage } from "@/components/layout/business-page";
 import styles from "@/components/layout/business-page.module.css";
 import type { Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
 
-export const contactMetadata: Metadata = {
-  title: "Contact & Business Inquiries",
-  description: "Prepare a PROSAFE business quotation and find information for general business and manufacturer partnership inquiries. Initial market: Kosovo.",
-};
+export function contactMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale).contact;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
 export function ContactView({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).contact;
   return (
-    <BusinessPage locale={locale} eyebrow="CONTACT" title={<>LET’S TALK<br />PROTECTION.</>} intro="For businesses equipping their teams and manufacturers exploring a distribution relationship. Our initial market is Kosovo.">
+    <BusinessPage locale={locale} eyebrow={t.eyebrow} title={<Lines lines={t.title} />} intro={t.intro}>
       <section className={styles.callout} aria-labelledby="quotation-heading">
-        <h2 id="quotation-heading">Business quotations.</h2>
-        <p>Build a selection from the demonstration catalog, then review quantities and business requirements in the existing quotation workflow. Submission availability is shown on the quotation page; delivery requires configuration.</p>
+        <h2 id="quotation-heading">{t.quotationHeading}</h2>
+        <p>{t.quotationBody}</p>
         <div className={styles.actions}>
-          <Link href={localizePath(locale, "/quote")} className="button button-primary">PREPARE A QUOTATION <ArrowUpRight size={17} aria-hidden="true" /></Link>
-          <Link href={localizePath(locale, "/products")} className="button button-text">BROWSE DEMO EQUIPMENT <ArrowUpRight size={17} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/quote")} className="button button-primary">{t.prepareQuotation} <ArrowUpRight size={17} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/products")} className="button button-text">{t.browseEquipment} <ArrowUpRight size={17} aria-hidden="true" /></Link>
         </div>
       </section>
       <section className={styles.section} aria-labelledby="business-heading">
-        <h2 id="business-heading">General business inquiries.</h2>
+        <h2 id="business-heading">{t.businessHeading}</h2>
         <div className={styles.body}>
-          <p>For an equipment inquiry, include your company, working environment, approximate team size, and any sizing or delivery requirements in the quotation form. A product selection is required to submit a quotation request.</p>
-          <p><strong>Direct contact details are not yet published.</strong> A verified business email, phone number, and business address must be supplied before launch. A channel for inquiries unrelated to equipment quotations is still pending.</p>
+          <p>{t.businessBody}</p>
+          <p><strong>{t.businessPending.strong}</strong> {t.businessPending.text}</p>
         </div>
       </section>
       <section id="manufacturer-partnerships" className={styles.section} aria-labelledby="manufacturer-heading">
-        <h2 id="manufacturer-heading">Manufacturer partnerships.</h2>
+        <h2 id="manufacturer-heading">{t.manufacturerHeading}</h2>
         <div className={styles.body}>
-          <p>For a future partnership discussion, prepare a company introduction, product categories, relevant product documentation, and your proposed distribution scope for Kosovo.</p>
-          <p><strong>Partnership inquiries are not yet open.</strong> A verified partnership contact will be published here before launch.</p>
-          <p><Link href={localizePath(locale, "/brands")}>Read our manufacturer partnership approach</Link></p>
+          <p>{t.manufacturerBody}</p>
+          <p><strong>{t.manufacturerPending.strong}</strong> {t.manufacturerPending.text}</p>
+          <p><Link href={localizePath(locale, "/brands")}>{t.brandsLink}</Link></p>
         </div>
       </section>
       <section className={styles.section} aria-labelledby="contact-privacy-heading">
-        <h2 id="contact-privacy-heading">Your inquiry information.</h2>
+        <h2 id="contact-privacy-heading">{t.privacyHeading}</h2>
         <div className={styles.body}>
-          <p>Use the quotation form for business requirements and avoid sensitive personal information. Contact details are not saved in browser storage.</p>
-          <p><Link href={localizePath(locale, "/privacy")}>Read the privacy information and pending launch details</Link></p>
+          <p>{t.privacyBody}</p>
+          <p><Link href={localizePath(locale, "/privacy")}>{t.privacyLink}</Link></p>
         </div>
       </section>
     </BusinessPage>

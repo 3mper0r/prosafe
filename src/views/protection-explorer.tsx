@@ -5,36 +5,37 @@ import { ProtectionExplorer } from "@/features/protection-explorer/protection-ex
 import { PRODUCT_CATEGORY_IDS, catalogCategoryHref } from "@/lib/product-categories";
 import styles from "@/features/protection-explorer/protection-explorer.module.css";
 import type { Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
 
-export const protectionExplorerMetadata: Metadata = {
-  title: "Protection Explorer",
-  description:
-    "Explore workplace protection from head to toe: safety helmets, protective eyewear, gloves, clothing, and footwear.",
-};
+export function protectionExplorerMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale).explorer;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
 export function ProtectionExplorerView({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).explorer;
   return (
     <main className={styles.page}>
       <Link href={localizePath(locale, "/#protection")} className={styles.backLink}>
-        <ArrowLeft size={17} aria-hidden="true" /> Back to PROSAFE
+        <ArrowLeft size={17} aria-hidden="true" /> {t.backLink}
       </Link>
       <header className={styles.intro}>
         <p className={styles.eyebrow}>
-          PROSAFE / INTERACTIVE PROTECTION EXPLORER
+          {t.eyebrow}
         </p>
         <h1>
-          PROTECTION.
-          <br />
-          FROM HEAD TO TOE.
+          <Lines lines={t.title} />
         </h1>
         <p>
-          Choose a zone to explore the equipment category. Hover or click on
-          desktop, tap on mobile, or use Tab and the arrow keys in the zone
-          selector.
+          {t.intro}
         </p>
       </header>
-      <ProtectionExplorer catalogLinks={Object.fromEntries(PRODUCT_CATEGORY_IDS.map((id) => [id, localizePath(locale, catalogCategoryHref(id))]))} />
+      <ProtectionExplorer
+        messages={t.widget}
+        catalogLinks={Object.fromEntries(PRODUCT_CATEGORY_IDS.map((id) => [id, localizePath(locale, catalogCategoryHref(id))]))}
+      />
     </main>
   );
 }

@@ -7,7 +7,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props) {
-  return productDetailMetadata((await params).slug);
+  return productDetailMetadata("en", (await params).slug);
 }
 
 export default async function Page({ params }: Props) {

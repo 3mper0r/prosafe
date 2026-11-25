@@ -1,34 +1,34 @@
 import { ArrowDown, ArrowUpRight, HardHat, Plus } from "lucide-react";
 import Link from "next/link";
+import { Fragment } from "react";
 import { WorkerPortrait } from "./worker-portrait";
 import styles from "./hero.module.css";
 import type { Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
 
 export function Hero({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).home.hero;
   return (
     <div className={styles.composition}>
       <section className={styles.hero} aria-labelledby="hero-heading">
         <aside
           className={styles.sidebar}
-          aria-label="PROSAFE workplace protection"
+          aria-label={t.sidebarLabel}
         >
           <span className={`technical-label ${styles.sidebarIndex}`}>
-            PROSAFE / 01
+            {t.sidebarIndex}
           </span>
           <div className={styles.sidebarPurpose}>
             <span className={styles.sidebarIcon}>
               <HardHat size={24} strokeWidth={1.4} aria-hidden="true" />
             </span>
             <p>
-              SAFETY
-              <br />
-              EQUIPMENT
+              <Lines lines={t.purpose} />
             </p>
             <span>
-              For the people
-              <br />
-              behind the work.
+              <Lines lines={t.purposeNote} />
             </span>
           </div>
           <p className={styles.sidebarSlogan}>
@@ -46,54 +46,45 @@ export function Hero({ locale }: { locale: Locale }) {
         <div className={styles.stage}>
           <div className={styles.headlineBlock}>
             <p className={`technical-label ${styles.eyebrow}`}>
-              PROTECTION IS OUR PURPOSE.
+              {t.eyebrow}
             </p>
             <h1 id="hero-heading" className={styles.headline}>
-              <span>PROTECTION</span> <span>IS NOT</span> <span>OPTIONAL.</span>
+              {t.headline.map((part, index) => <Fragment key={index}>{index > 0 && " "}<span>{part}</span></Fragment>)}
             </h1>
             <div className={styles.actions}>
               <Link
                 href={localizePath(locale, "/products")}
                 className={`button button-primary ${styles.primary}`}
               >
-                EXPLORE EQUIPMENT <ArrowUpRight size={18} aria-hidden="true" />
+                {t.primaryAction} <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
               <Link href={localizePath(locale, "/find-your-protection")} className={styles.secondary}>
-                FIND YOUR PROTECTION{" "}
+                {t.secondaryAction}{" "}
                 <ArrowUpRight size={15} aria-hidden="true" />
               </Link>
             </div>
           </div>
-          <WorkerPortrait />
+          <WorkerPortrait alt={t.workerAlt} />
           <div className={styles.technicalPanel}>
             <span className={styles.leaderLine} aria-hidden="true" />
             <p className={`technical-label ${styles.panelIndex}`}>
-              PERSONAL PROTECTION / 01
+              {t.panelIndex}
             </p>
             <h2>
-              HEAD.
-              <br />
-              HANDS.
-              <br />
-              EVERYTHING
-              <br />
-              IN BETWEEN.
+              <Lines lines={t.panelHeading} />
             </h2>
             <p className={styles.supportingCopy}>
-              Professional safety equipment and workplace protection solutions
-              for every industry.
+              {t.panelCopy}
             </p>
             <Link href={localizePath(locale, "/products")} className={styles.panelLink}>
-              Explore protection <ArrowUpRight size={16} aria-hidden="true" />
+              {t.panelLink} <ArrowUpRight size={16} aria-hidden="true" />
             </Link>
             <span className={`technical-label ${styles.panelFootnote}`}>
-              EQUIPMENT CATALOG
-              <br />
-              DEMONSTRATION COLLECTION
+              <Lines lines={t.panelFootnote} />
             </span>
           </div>
           <a href="#equipment" className={styles.scrollIndicator}>
-            <span className="technical-label">EXPLORE EQUIPMENT</span>
+            <span className="technical-label">{t.scrollIndicator}</span>
             <ArrowDown size={16} aria-hidden="true" />
           </a>
         </div>

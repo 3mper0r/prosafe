@@ -3,17 +3,39 @@ import { en, type Dictionary } from "./en";
 /**
  * Albanian dictionary (default language).
  *
- * UNREVIEWED DRAFT translations exist only for `/about` and the 404 page.
- * Namespaces assigned from `en` are temporary English placeholders until the
- * M9.2 translation phase. Every Albanian string requires review and approval
- * before production use. "SAFETY WITHOUT COMPROMISE." stays in English.
+ * UNREVIEWED DRAFT translations exist only for `meta`, `about` and `notFound`.
+ * Every namespace assigned as `en.<namespace>` is a temporary English
+ * placeholder until the M9.4 translation phase (tests list them). Every
+ * Albanian string requires review and approval before production use.
+ * "SAFETY WITHOUT COMPROMISE." stays in English.
  */
 export const sq = {
-  // Pending Albanian translation (M9.2): temporary English placeholders.
+  // English placeholders pending Albanian translation (M9.4).
   common: en.common,
   header: en.header,
   footer: en.footer,
   quoteLink: en.quoteLink,
+  home: en.home,
+  businessPage: en.businessPage,
+  brands: en.brands,
+  contact: en.contact,
+  privacy: en.privacy,
+  imprint: en.imprint,
+  riskNote: en.riskNote,
+  demoNotice: en.demoNotice,
+  productCard: en.productCard,
+  catalog: en.catalog,
+  productDetail: en.productDetail,
+  productNotFound: en.productNotFound,
+  industries: en.industries,
+  industryDetail: en.industryDetail,
+  industryNotFound: en.industryNotFound,
+  industryEquipment: en.industryEquipment,
+  findYourProtection: en.findYourProtection,
+  explorer: en.explorer,
+  addToQuote: en.addToQuote,
+  quote: en.quote,
+  // Unreviewed Albanian drafts (M9.0).
   meta: {
     defaultTitle: "PROSAFE — Safety Without Compromise.",
     description:
