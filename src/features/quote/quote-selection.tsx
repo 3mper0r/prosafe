@@ -9,6 +9,8 @@ import type { ProductSummary } from "@/features/catalog/types";
 import { MAX_QUANTITY, removeFromQuote, setQuoteQuantity, useQuote, clearSubmittedQuote } from "./quote-store";
 import { QuoteRequestForm } from "./quote-request-form";
 import styles from "./quote.module.css";
+import { useLocale } from "@/i18n/locale-context";
+import { localizePath } from "@/i18n/paths";
 
 function QuantityInput({ productId, productName, quantity }: { productId: string; productName: string; quantity: number }) {
   const [draft, setDraft] = useState(String(quantity));
@@ -39,6 +41,7 @@ function QuantityInput({ productId, productName, quantity }: { productId: string
 }
 
 export function QuoteSelection({ products, available }: { products: readonly ProductSummary[]; available: boolean }) {
+  const locale = useLocale();
   const { items, ready, persistent } = useQuote();
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
@@ -55,7 +58,7 @@ export function QuoteSelection({ products, available }: { products: readonly Pro
         <p>The configured email provider accepted your request for delivery. This confirms receipt by the provider, not a price, order, or delivery commitment.</p>
         <p className={styles.reference}>Reference: {receipt}</p>
         <p>Submitted products were removed from your selection. Any items changed elsewhere while sending have been preserved.</p>
-        <Link href="/products" className="button button-primary">EXPLORE EQUIPMENT</Link>
+        <Link href={localizePath(locale, "/products")} className="button button-primary">EXPLORE EQUIPMENT</Link>
         {items.length > 0 && <button type="button" className="button button-text" onClick={() => setReceipt("")}>VIEW REMAINING SELECTION</button>}
       </section> : items.length ? <>
         <div className={styles.selectionLayout}>
@@ -67,12 +70,12 @@ export function QuoteSelection({ products, available }: { products: readonly Pro
               if (!product) return null;
               const image = product.images[0];
               return <li key={product.id} className={styles.item} data-quote-product={product.id}>
-                <Link href={`/products/${product.slug}`} className={styles.thumbnail} aria-label={`View ${product.name}`}>
+                <Link href={localizePath(locale, `/products/${product.slug}`)} className={styles.thumbnail} aria-label={`View ${product.name}`}>
                   {image && <Image src={image.src} alt="" width={160} height={120} />}
                 </Link>
                 <div className={styles.itemInfo}>
                   <p className={styles.category}>{PRODUCT_CATEGORIES[product.categoryId].label} / DEMO</p>
-                  <h2><Link href={`/products/${product.slug}`}>{product.name}</Link></h2>
+                  <h2><Link href={localizePath(locale, `/products/${product.slug}`)}>{product.name}</Link></h2>
                   <p className={styles.identifier}>{product.id}</p>
                   <p className={styles.summary}>{product.summary}</p>
                   <div className={styles.itemControls}>
@@ -100,7 +103,7 @@ export function QuoteSelection({ products, available }: { products: readonly Pro
             <p className={styles.units}>{total} total {total === 1 ? "unit" : "units"}</p>
             <p className={styles.localNote}>Saved in this browser. You can return and adjust your selection.</p>
             <p className={styles.pending}>{available ? "Review your selection and complete the business enquiry form below." : "Submission is unavailable until a delivery destination is configured. Your selection has not been sent."}</p>
-            <Link href="/products" className={`button button-primary ${styles.continue}`}>CONTINUE EXPLORING</Link>
+            <Link href={localizePath(locale, "/products")} className={`button button-primary ${styles.continue}`}>CONTINUE EXPLORING</Link>
           </aside>
         </div>
         <QuoteRequestForm items={items} knownProductIds={products.map((product) => product.id)} available={available} onPending={setPending} onAccepted={(reference, submitted) => {
@@ -113,7 +116,7 @@ export function QuoteSelection({ products, available }: { products: readonly Pro
           <p className={styles.eyebrow}>YOUR SELECTION / 0 PRODUCTS</p>
           <h2 id="empty-quote-heading" tabIndex={-1}>Start with the equipment.</h2>
           <p>Add demonstration products from the catalog, then adjust quantities here.</p>
-          <Link href="/products" className="button button-primary">EXPLORE EQUIPMENT</Link>
+          <Link href={localizePath(locale, "/products")} className="button button-primary">EXPLORE EQUIPMENT</Link>
         </section>
       )}
     </>

@@ -7,6 +7,8 @@ import { validateQuoteRequest } from "./request/validation";
 import type { QuoteErrors } from "./request/types";
 import type { QuoteItem } from "./quote-store";
 import styles from "./quote.module.css";
+import { useLocale } from "@/i18n/locale-context";
+import { localizePath } from "@/i18n/paths";
 
 type Session = { available: boolean; token: string };
 type Props = {
@@ -26,6 +28,7 @@ const fields = [
 ] as const;
 
 export function QuoteRequestForm({ items, knownProductIds, available, onPending, onAccepted }: Props) {
+  const locale = useLocale();
   const [session, setSession] = useState<Session | null>(null);
   const [pending, setPending] = useState(false);
   const [errors, setErrors] = useState<QuoteErrors>({});
@@ -109,7 +112,7 @@ export function QuoteRequestForm({ items, knownProductIds, available, onPending,
       <p className={styles.eyebrow}>BUSINESS ENQUIRIES / REQUEST A QUOTATION</p>
       <h2 id="request-heading">Tell us about your team.</h2>
       <p className={styles.formIntro}>The products and quantities above will accompany your request. Contact details stay in this form and are not saved in browser storage.</p>
-      <p className={styles.formHint}><Link href="/privacy" className="underline underline-offset-4">Privacy information (draft; business details pending)</Link></p>
+      <p className={styles.formHint}><Link href={localizePath(locale, "/privacy")} className="underline underline-offset-4">Privacy information (draft; business details pending)</Link></p>
       <p className={styles.formHint}>Up to {QUOTE_LIMITS.maxItems} products, {QUOTE_LIMITS.maxQuantity} units per product, and {QUOTE_LIMITS.maxTotalQuantity} units in total.</p>
       {!available || session?.available === false ? <p className={styles.storageNotice} role="status">Submission is unavailable in the current demo environment because delivery is not configured. Your selection has not been sent.</p> : null}
       {sessionError && <p className={styles.storageNotice} role="status">We could not prepare the submission session. <button type="button" onClick={refreshSession}>Retry connection</button></p>}

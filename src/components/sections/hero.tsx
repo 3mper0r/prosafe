@@ -2,8 +2,10 @@ import { ArrowDown, ArrowUpRight, HardHat, Plus } from "lucide-react";
 import Link from "next/link";
 import { WorkerPortrait } from "./worker-portrait";
 import styles from "./hero.module.css";
+import type { Locale } from "@/i18n/config";
+import { localizePath } from "@/i18n/paths";
 
-export function Hero() {
+export function Hero({ locale }: { locale: Locale }) {
   return (
     <div className={styles.composition}>
       <section className={styles.hero} aria-labelledby="hero-heading">
@@ -51,12 +53,12 @@ export function Hero() {
             </h1>
             <div className={styles.actions}>
               <Link
-                href="/products"
+                href={localizePath(locale, "/products")}
                 className={`button button-primary ${styles.primary}`}
               >
                 EXPLORE EQUIPMENT <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
-              <Link href="/find-your-protection" className={styles.secondary}>
+              <Link href={localizePath(locale, "/find-your-protection")} className={styles.secondary}>
                 FIND YOUR PROTECTION{" "}
                 <ArrowUpRight size={15} aria-hidden="true" />
               </Link>
@@ -81,7 +83,7 @@ export function Hero() {
               Professional safety equipment and workplace protection solutions
               for every industry.
             </p>
-            <Link href="/products" className={styles.panelLink}>
+            <Link href={localizePath(locale, "/products")} className={styles.panelLink}>
               Explore protection <ArrowUpRight size={16} aria-hidden="true" />
             </Link>
             <span className={`technical-label ${styles.panelFootnote}`}>

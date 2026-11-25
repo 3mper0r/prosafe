@@ -6,8 +6,10 @@ import { ProductCard } from "@/features/catalog/product-card";
 import catalogStyles from "@/features/catalog/catalog.module.css";
 import { getIndustryProducts, industryCatalogHref, type Industry } from "./industries";
 import styles from "./industries.module.css";
+import type { Locale } from "@/i18n/config";
+import { localizePath } from "@/i18n/paths";
 
-export function IndustryEquipment({ industry }: { industry: Industry }) {
+export function IndustryEquipment({ locale, industry }: { locale: Locale; industry: Industry }) {
   const products = getIndustryProducts(industry);
   return (
     <div data-industry-equipment={industry.slug}>
@@ -18,7 +20,7 @@ export function IndustryEquipment({ industry }: { industry: Industry }) {
         <ul className={styles.categoryLinks}>
           {industry.categoryIds.map((id) => (
             <li key={id}>
-              <Link href={industryCatalogHref(industry, id)}>
+              <Link href={localizePath(locale, industryCatalogHref(industry, id))}>
                 {PRODUCT_CATEGORIES[id].label}
                 <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
@@ -32,14 +34,14 @@ export function IndustryEquipment({ industry }: { industry: Industry }) {
             <p className={styles.eyebrow}>02 / DEMONSTRATION EQUIPMENT</p>
             <h2 id="examples-heading">Examples for {industry.name.toLowerCase()}</h2>
           </div>
-          <Link href={industryCatalogHref(industry)} className={catalogStyles.textLink}>
+          <Link href={localizePath(locale, industryCatalogHref(industry))} className={catalogStyles.textLink}>
             Filter in the catalog <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
         </div>
         <DemoNotice />
         {industry.equipmentNote && <p className={styles.equipmentNote}>{industry.equipmentNote}</p>}
         <ul className={catalogStyles.grid} aria-label="Industry demonstration products">
-          {products.map((product) => <ProductCard key={product.id} product={product} headingLevel={3} />)}
+          {products.map((product) => <ProductCard key={product.id} locale={locale} product={product} headingLevel={3} />)}
         </ul>
       </section>
       <aside className={styles.quotePrompt} aria-label="Prepare a quote selection">
@@ -48,7 +50,7 @@ export function IndustryEquipment({ industry }: { industry: Industry }) {
           <h2>Bring your equipment list together.</h2>
           <p>Add examples to your selection and adjust quantities, then review the quotation form and submission availability.</p>
         </div>
-        <Link href="/quote" className="button button-primary">
+        <Link href={localizePath(locale, "/quote")} className="button button-primary">
           PREPARE A QUOTE <ArrowUpRight size={17} aria-hidden="true" />
         </Link>
       </aside>

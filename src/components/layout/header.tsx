@@ -5,22 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/ui/wordmark";
+import { useLocale, useMessages } from "@/i18n/locale-context";
+import { localizePath, stripLocale, type InternalPath } from "@/i18n/paths";
 import { QuoteLink } from "@/features/quote/quote-link";
 import styles from "./header.module.css";
 
-const navigation = [
-  { label: "Products", href: "/products" },
-  { label: "Industries", href: "/industries" },
-  { label: "Brands", href: "/brands" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-] as const;
-
 function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
+  const locale = useLocale();
+  const { navigation } = useMessages().header;
+  // Compare locale-independent paths so /en/products marks "Products" as current.
+  const current = stripLocale((usePathname() || "/") as InternalPath);
   return navigation.map((item) => (
-    <li key={item.label}>
-      <Link href={item.href} onClick={onNavigate} aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "page" : undefined}>
+    <li key={item.href}>
+      <Link href={localizePath(locale, item.href)} onClick={onNavigate} aria-current={current === item.href || current.startsWith(`${item.href}/`) ? "page" : undefined}>
         {item.label}
       </Link>
     </li>
@@ -28,6 +25,8 @@ function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function Header() {
+  const locale = useLocale();
+  const { common, header: t } = useMessages();
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -56,8 +55,8 @@ export function Header() {
 
   return (
     <header className={`site-header ${styles.header}`}>
-      <Wordmark />
-      <nav className="desktop-navigation" aria-label="Main navigation">
+      <Wordmark locale={locale} label={common.homeLabel} />
+      <nav className="desktop-navigation" aria-label={t.mainNavigation}>
         <ul>
           <NavigationLinks />
         </ul>
@@ -68,7 +67,7 @@ export function Header() {
         ref={triggerRef}
         type="button"
         className="menu-trigger"
-        aria-label="Open navigation"
+        aria-label={t.openNavigation}
         aria-expanded={isOpen}
         aria-controls="mobile-navigation"
         aria-haspopup="dialog"
@@ -100,18 +99,18 @@ export function Header() {
       >
         <div className="mobile-menu-top">
           <span id="mobile-menu-title" className="technical-label">
-            PROSAFE / Navigation
+            {t.mobileMenuTitle}
           </span>
           <button
             type="button"
             className="menu-close"
-            aria-label="Close navigation"
+            aria-label={t.closeNavigation}
             onClick={() => setIsOpen(false)}
           >
             <X aria-hidden="true" size={24} />
           </button>
         </div>
-        <nav aria-label="Mobile navigation">
+        <nav aria-label={t.mobileNavigation}>
           <ul>
             <NavigationLinks onNavigate={() => setIsOpen(false)} />
           </ul>

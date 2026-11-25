@@ -6,6 +6,42 @@
  * (`/about` and the localized 404) are present.
  */
 export const en = {
+  common: {
+    skipToContent: "Skip to content",
+    homeLabel: "PROSAFE home",
+  },
+  header: {
+    navigation: [
+      { label: "Products", href: "/products" },
+      { label: "Industries", href: "/industries" },
+      { label: "Brands", href: "/brands" },
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
+    mainNavigation: "Main navigation",
+    mobileNavigation: "Mobile navigation",
+    mobileMenuTitle: "PROSAFE / Navigation",
+    openNavigation: "Open navigation",
+    closeNavigation: "Close navigation",
+  },
+  footer: {
+    navigationLabel: "Company and legal navigation",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/brands", label: "Brands" },
+      { href: "/contact", label: "Contact" },
+      { href: "/privacy", label: "Privacy (draft)" },
+      { href: "/imprint", label: "Imprint (draft)" },
+    ],
+    photoCredit: "Material photography: Kindel Media & Nothing Ahead / Pexels",
+  },
+  quoteLink: {
+    label: "Quote",
+    ariaLabel: {
+      one: "Quote selection, {count} selected product",
+      other: "Quote selection, {count} selected products",
+    },
+  },
   meta: {
     defaultTitle: "PROSAFE — Safety Without Compromise.",
     description:
@@ -48,10 +84,15 @@ export const en = {
   },
 } as const;
 
-type Widen<T> = T extends string
+type Widen<T> = T extends `/${string}`
+  ? `/${string}`
+  : T extends string
   ? string
   : T extends readonly (infer Item)[]
     ? readonly Widen<Item>[]
     : { readonly [Key in keyof T]: Widen<T[Key]> };
 
 export type Dictionary = Widen<typeof en>;
+
+/** Namespaces passed to client components through LocaleProvider. Keep this small. */
+export type ClientMessages = Pick<Dictionary, "common" | "header" | "quoteLink">;

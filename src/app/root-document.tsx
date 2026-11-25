@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { getSiteOrigin } from "@/lib/site-url";
 import type { Locale } from "@/i18n/config";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getClientMessages, getDictionary } from "@/i18n/get-dictionary";
+import { LocaleProvider } from "@/i18n/locale-context";
 import { bodyFont, displayFont } from "./fonts";
 import "./globals.css";
 
@@ -29,7 +30,9 @@ export const rootViewport: Viewport = {
 export function RootDocument({ locale, children }: { locale: Locale; children: ReactNode }) {
   return (
     <html lang={locale} className={`${displayFont.variable} ${bodyFont.variable}`}>
-      <body>{children}</body>
+      <body>
+        <LocaleProvider locale={locale} messages={getClientMessages(locale)}>{children}</LocaleProvider>
+      </body>
     </html>
   );
 }

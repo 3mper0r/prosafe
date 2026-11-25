@@ -4,7 +4,8 @@ import { ArrowUpRight } from "lucide-react";
 import { BusinessPage } from "@/components/layout/business-page";
 import styles from "@/components/layout/business-page.module.css";
 import type { Locale } from "@/i18n/config";
-import { getDictionary, localizePath } from "@/i18n/get-dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { localizePath } from "@/i18n/paths";
 
 export function aboutMetadata(locale: Locale): Metadata {
   const { about } = getDictionary(locale);
@@ -15,7 +16,7 @@ export function aboutMetadata(locale: Locale): Metadata {
 export function AboutView({ locale }: { locale: Locale }) {
   const t = getDictionary(locale).about;
   return (
-    <BusinessPage eyebrow={t.eyebrow} title={<>SAFETY WITHOUT<br />COMPROMISE.</>} intro={t.intro}>
+    <BusinessPage locale={locale} eyebrow={t.eyebrow} title={<>SAFETY WITHOUT<br />COMPROMISE.</>} intro={t.intro}>
       <dl className={styles.facts}>
         {t.facts.map((fact) => <div key={fact.term}><dt>{fact.term}</dt><dd>{fact.value}</dd></div>)}
       </dl>

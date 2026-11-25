@@ -1,14 +1,5 @@
-import type { ReactNode } from "react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { SiteChrome } from "@/views/site-chrome";
 
-export default function IndustriesLayout({ children }: { children: ReactNode }) {
-  return (
-    <>
-      <a className="skip-link" href="#main-content">Skip to content</a>
-      <Header />
-      {children}
-      <Footer />
-    </>
-  );
+export default function Layout({ children }: LayoutProps<"/industries">) {
+  return <SiteChrome locale="sq">{children}</SiteChrome>;
 }

@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { INDUSTRIES } from "@/features/industries/industries";
+import type { Locale } from "@/i18n/config";
+import { localizePath } from "@/i18n/paths";
 
 const equipment = [
   { name: "Head protection", icon: HardHat },
@@ -19,7 +21,7 @@ const equipment = [
   { name: "Safety footwear", icon: Footprints },
 ];
 
-export function HomepageOverview() {
+export function HomepageOverview({ locale }: { locale: Locale }) {
   return (
     <>
       <section
@@ -40,7 +42,7 @@ export function HomepageOverview() {
               workplace protection.
             </p>
           </div>
-          <Link href="/products" className="technical-label preview-label">
+          <Link href={localizePath(locale, "/products")} className="technical-label preview-label">
             EQUIPMENT CATALOG ↗
             <br />
             EXPLORE DEMONSTRATION PRODUCTS
@@ -77,11 +79,11 @@ export function HomepageOverview() {
             equipment and workplace needs together, with the people doing the
             job at the center.
           </p>
-          <Link href="/protection-explorer" className="button button-text mt-6">
+          <Link href={localizePath(locale, "/protection-explorer")} className="button button-text mt-6">
             OPEN PROTECTION EXPLORER{" "}
             <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
-          <Link href="/find-your-protection" className="button button-text mt-6 sm:ml-8">
+          <Link href={localizePath(locale, "/find-your-protection")} className="button button-text mt-6 sm:ml-8">
             FIND EQUIPMENT BY INDUSTRY <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
         </div>
@@ -103,14 +105,14 @@ export function HomepageOverview() {
           {INDUSTRIES.map((industry, index) => (
             <li key={industry.slug}>
               <span className="technical-label">0{index + 1}</span>
-              <Link href={`/industries/${industry.slug}`} className="flex min-h-11 items-center gap-4 transition-colors hover:text-accent">
+              <Link href={localizePath(locale, `/industries/${industry.slug}`)} className="flex min-h-11 items-center gap-4 transition-colors hover:text-accent">
                 {industry.name} <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
             </li>
           ))}
         </ul>
         <p className="technical-label feature-note">
-          <Link href="/industries" className="button button-text">EXPLORE ALL INDUSTRIES <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/industries")} className="button button-text">EXPLORE ALL INDUSTRIES <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </p>
       </section>
       <section
@@ -129,7 +131,7 @@ export function HomepageOverview() {
             Our purpose is simple: bring professional safety equipment and a
             complete approach to protection to every working day.
           </p>
-          <Link href="/about" className="button button-text mt-6">ABOUT PROSAFE <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/about")} className="button button-text mt-6">ABOUT PROSAFE <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
       </section>
       <section
@@ -154,8 +156,8 @@ export function HomepageOverview() {
           <p className="contact-footnote">
             Delivery availability is shown on the quotation page.
           </p>
-          <Link href="/quote" className="button button-text mt-6">PREPARE A QUOTATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
-          <Link href="/contact" className="button button-text mt-6 sm:ml-8">BUSINESS CONTACT INFORMATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/quote")} className="button button-text mt-6">PREPARE A QUOTATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <Link href={localizePath(locale, "/contact")} className="button button-text mt-6 sm:ml-8">BUSINESS CONTACT INFORMATION <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
         <ArrowUpRight
           className="contact-arrow"

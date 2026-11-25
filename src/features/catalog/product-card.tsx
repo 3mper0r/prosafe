@@ -5,13 +5,15 @@ import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
 import { AddToQuote } from "@/features/quote/add-to-quote";
 import type { Product } from "./types";
 import styles from "./catalog.module.css";
+import type { Locale } from "@/i18n/config";
+import { localizePath } from "@/i18n/paths";
 
-export function ProductCard({ product, headingLevel = 2 }: { product: Product; headingLevel?: 2 | 3 }) {
+export function ProductCard({ locale, product, headingLevel = 2 }: { locale: Locale; product: Product; headingLevel?: 2 | 3 }) {
   const image = product.images[0];
   const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
     <li className={styles.card} data-product-id={product.id}>
-      <Link href={`/products/${product.slug}`} className={styles.cardLink}>
+      <Link href={localizePath(locale, `/products/${product.slug}`)} className={styles.cardLink}>
         <div className={styles.visual}>
           {image && <Image src={image.src} alt={image.alt} width={640} height={480} />}
           <span className={styles.badge}>DEMO / CATEGORY ILLUSTRATION</span>

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/ui/wordmark";
 import type { Locale } from "@/i18n/config";
-import { getDictionary, localizePath } from "@/i18n/get-dictionary";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { localizePath } from "@/i18n/paths";
 
 /**
  * Localized 404 rendered inside the matching root layout.
@@ -11,10 +12,10 @@ import { getDictionary, localizePath } from "@/i18n/get-dictionary";
  * global classes from globals.css (no CSS modules, no Header/Footer imports).
  */
 export function NotFoundView({ locale }: { locale: Locale }) {
-  const t = getDictionary(locale).notFound;
+  const { common, notFound: t } = getDictionary(locale);
   return (
     <main id="main-content" tabIndex={-1} className="section-shell">
-      <Wordmark />
+      <Wordmark locale={locale} label={common.homeLabel} />
       <p className="technical-label section-index">{t.eyebrow}</p>
       <h1 className="section-heading">{t.heading}</h1>
       <p className="section-intro">{t.body}</p>

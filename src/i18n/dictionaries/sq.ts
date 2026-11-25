@@ -1,13 +1,19 @@
-import type { Dictionary } from "./en";
+import { en, type Dictionary } from "./en";
 
 /**
  * Albanian dictionary (default language).
  *
- * M9.0 spike: UNREVIEWED DRAFT translations for `/about` and the 404 page only.
- * Every Albanian string requires review and approval before production use.
- * "SAFETY WITHOUT COMPROMISE." is the official slogan and stays in English.
+ * UNREVIEWED DRAFT translations exist only for `/about` and the 404 page.
+ * Namespaces assigned from `en` are temporary English placeholders until the
+ * M9.2 translation phase. Every Albanian string requires review and approval
+ * before production use. "SAFETY WITHOUT COMPROMISE." stays in English.
  */
 export const sq = {
+  // Pending Albanian translation (M9.2): temporary English placeholders.
+  common: en.common,
+  header: en.header,
+  footer: en.footer,
+  quoteLink: en.quoteLink,
   meta: {
     defaultTitle: "PROSAFE — Safety Without Compromise.",
     description:
