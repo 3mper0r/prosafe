@@ -8,7 +8,7 @@ import {
   Shirt,
 } from "lucide-react";
 import Link from "next/link";
-import { INDUSTRIES } from "@/features/industries/industries";
+import { getCatalog } from "@/content/catalog";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Lines } from "@/i18n/lines";
@@ -97,7 +97,7 @@ export function HomepageOverview({ locale }: { locale: Locale }) {
           </h2>
         </div>
         <ul className="industry-list">
-          {INDUSTRIES.map((industry, index) => (
+          {getCatalog(locale).industries.map((industry, index) => (
             <li key={industry.slug}>
               <span className="technical-label">0{index + 1}</span>
               <Link href={localizePath(locale, `/industries/${industry.slug}`)} className="flex min-h-11 items-center gap-4 transition-colors hover:text-accent">

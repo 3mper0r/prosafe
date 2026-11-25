@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
+import { getCatalog, type Industry } from "@/content/catalog";
 import { DemoNotice } from "@/features/catalog/demo-notice";
 import { ProductCard } from "@/features/catalog/product-card";
 import catalogStyles from "@/features/catalog/catalog.module.css";
-import { getIndustryProducts, industryCatalogHref, type Industry } from "./industries";
+import { industryCatalogHref } from "./industries";
 import styles from "./industries.module.css";
 import type { Locale } from "@/i18n/config";
 import { formatMessage } from "@/i18n/format";
@@ -12,7 +12,8 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/paths";
 
 export function IndustryEquipment({ locale, industry }: { locale: Locale; industry: Industry }) {
-  const products = getIndustryProducts(industry);
+  const catalog = getCatalog(locale);
+  const products = catalog.getIndustryProducts(industry);
   const t = getDictionary(locale).industryEquipment;
   return (
     <div data-industry-equipment={industry.slug}>
@@ -24,7 +25,7 @@ export function IndustryEquipment({ locale, industry }: { locale: Locale; indust
           {industry.categoryIds.map((id) => (
             <li key={id}>
               <Link href={localizePath(locale, industryCatalogHref(industry, id))}>
-                {PRODUCT_CATEGORIES[id].label}
+                {catalog.categories[id].label}
                 <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </li>

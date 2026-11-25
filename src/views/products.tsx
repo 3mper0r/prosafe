@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PRODUCT_CATEGORIES, PRODUCT_CATEGORY_IDS, isProductCategoryId } from "@/lib/product-categories";
-import { PRODUCTS } from "@/features/catalog/products";
+import { PRODUCT_CATEGORY_IDS, isProductCategoryId } from "@/lib/product-categories";
+import { cleanSearchQuery } from "@/features/catalog/search";
+import { getCatalog } from "@/content/catalog";
 import { ProductCard } from "@/features/catalog/product-card";
 import { DemoNotice } from "@/features/catalog/demo-notice";
-import { INDUSTRIES, getIndustryBySlug, getIndustryProducts, industryCatalogHref } from "@/features/industries/industries";
+import { industryCatalogHref } from "@/features/industries/industries";
 import { RiskAssessmentNote } from "@/features/industries/risk-assessment-note";
 import styles from "@/features/catalog/catalog.module.css";
 import type { Locale } from "@/i18n/config";
@@ -23,17 +24,13 @@ export function ProductsView({ locale, searchParams: query }: {
   searchParams: { q?: string | string[]; category?: string | string[]; industry?: string | string[] };
 }) {
   const t = getDictionary(locale).catalog;
-  const search = (typeof query.q === "string" ? query.q : "").trim().slice(0, 200);
+  const catalog = getCatalog(locale);
+  const search = cleanSearchQuery(query.q);
   const categoryInput = typeof query.category === "string" ? query.category : "";
   const category = isProductCategoryId(categoryInput) ? categoryInput : "";
   const industryInput = typeof query.industry === "string" ? query.industry : "";
-  const industry = getIndustryBySlug(industryInput);
-  const source = industry ? getIndustryProducts(industry) : PRODUCTS;
-  const terms = search.toLocaleLowerCase("en").split(/\s+/).filter(Boolean);
-  const products = source.filter((product) => {
-    const text = [product.name, product.summary, product.description, product.id, PRODUCT_CATEGORIES[product.categoryId].label, ...product.keywords].join(" ").toLocaleLowerCase("en");
-    return (!category || product.categoryId === category) && terms.every((term) => text.includes(term));
-  });
+  const industry = catalog.getIndustryBySlug(industryInput);
+  const products = catalog.filterProducts({ query: search, categoryId: category, industry });
   return (
     <main id="main-content" tabIndex={-1} className={styles.page}>
       <header className={styles.intro}>
@@ -56,14 +53,14 @@ export function ProductsView({ locale, searchParams: query }: {
           {t.categoryLabel}
           <select name="category" defaultValue={category}>
             <option value="">{t.allCategories}</option>
-            {PRODUCT_CATEGORY_IDS.map((id) => <option key={id} value={id}>{PRODUCT_CATEGORIES[id].label}</option>)}
+            {PRODUCT_CATEGORY_IDS.map((id) => <option key={id} value={id}>{catalog.categories[id].label}</option>)}
           </select>
         </label>
         <label className={styles.field}>
           {t.industryLabel}
           <select name="industry" defaultValue={industry?.slug ?? ""}>
             <option value="">{t.allIndustries}</option>
-            {INDUSTRIES.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}
+            {catalog.industries.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}
           </select>
         </label>
         <button type="submit" className="button button-primary">{t.applyFilters}</button>
@@ -71,7 +68,7 @@ export function ProductsView({ locale, searchParams: query }: {
       {categoryInput && !category && <p className={styles.note}>{t.unknownCategory}</p>}
       {industryInput && !industry && <p className={styles.note}>{t.unknownIndustry}</p>}
       <div className={styles.resultsBar}>
-        <p>{formatPlural(locale, products.length, t.resultCount)}{industry ? formatMessage(t.resultIndustry, { industry: industry.name }) : ""}{category ? formatMessage(t.resultCategory, { category: PRODUCT_CATEGORIES[category].label }) : t.resultAllCategories}{search ? formatMessage(t.resultSearch, { search }) : ""}</p>
+        <p>{formatPlural(locale, products.length, t.resultCount)}{industry ? formatMessage(t.resultIndustry, { industry: industry.name }) : ""}{category ? formatMessage(t.resultCategory, { category: catalog.categories[category].label }) : t.resultAllCategories}{search ? formatMessage(t.resultSearch, { search }) : ""}</p>
         {(search || categoryInput || industryInput) && <Link href={localizePath(locale, "/products")} className={styles.textLink}>{t.clearFilters}</Link>}
       </div>
       {products.length ? (

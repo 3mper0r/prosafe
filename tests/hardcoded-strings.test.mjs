@@ -29,16 +29,12 @@ const ALLOWED = new Set([
 ]);
 
 /**
- * Data that is not UI copy and moves to the localized data model in M9.3.
- * These are .ts modules, so the .tsx scan below never reads them; they are
- * listed here so the exception is documented and checked to still exist.
+ * Server-side text that intentionally stays English (not part of the .tsx scan):
+ * API `message` fields are diagnostics the client never displays (it localizes
+ * by `code`), and the internal quotation email is addressed to PROSAFE staff.
+ * Catalog content lives in src/content/<locale>.ts; validation returns codes.
  */
-const DEFERRED_DATA = [
-  "features/catalog/products.ts",
-  "features/industries/industries.ts",
-  "lib/product-categories.ts",
-  "features/protection-explorer/zones.ts",
-  "features/quote/request/validation.ts",
+const INTENTIONALLY_ENGLISH = [
   "features/quote/request/http.server.ts",
   "features/quote/request/submission.server.ts",
   "features/quote/request/delivery.server.ts",
@@ -114,6 +110,21 @@ test("the scanner detects hardcoded text, attributes, conditionals and metadata"
   assert.deepEqual(found, ['"Hardcoded title"', '"Hardcoded label"', '"Hardcoded text"', '"Yes branch"', '"No branch"', '"Alt"']);
 });
 
-test("documented deferred data modules still exist", async () => {
-  for (const path of DEFERRED_DATA) await readFile(join(src, path), "utf8");
+test("documented English-only server modules still exist", async () => {
+  for (const path of INTENTIONALLY_ENGLISH) await readFile(join(src, path), "utf8");
+});
+
+test("core data and validation modules contain no localized prose", async () => {
+  // Language-independent modules hold identifiers only; prose belongs in src/content or the dictionaries.
+  for (const path of ["features/catalog/products.ts", "features/industries/industries.ts", "lib/product-categories.ts", "features/protection-explorer/zones.ts", "features/quote/request/validation.ts"]) {
+    const file = ts.createSourceFile(path, await readFile(join(src, path), "utf8"), ts.ScriptTarget.Latest, true);
+    const prose = [];
+    // Flag string literals that read like prose (contain a letter and a space).
+    const visit = (node) => {
+      if ((ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) && /\p{L}/u.test(node.text) && / /u.test(node.text)) prose.push(node.text);
+      ts.forEachChild(node, visit);
+    };
+    visit(file);
+    assert.deepEqual(prose, [], path);
+  }
 });

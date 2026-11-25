@@ -1,7 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { PRODUCTS } from "../../catalog/products";
-import { PRODUCT_CATEGORIES } from "../../../lib/product-categories";
+import { PRODUCT_RECORDS } from "../../catalog/products";
+import { getCatalog } from "../../../content/catalog";
 import { validateQuoteRequest } from "./validation";
 import type { ResolvedQuoteRequest, SubmissionResult } from "./types";
 import type { QuoteDelivery } from "./delivery.server";
@@ -21,7 +21,7 @@ export async function submitQuoteRequest(input: unknown, requestId: string, deli
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(requestId)) {
     return failure(400, "invalid_request_id", "Please refresh the page and try again.");
   }
-  const validated = validateQuoteRequest(input, PRODUCTS.map((product) => product.id));
+  const validated = validateQuoteRequest(input, PRODUCT_RECORDS.map((product) => product.id));
   if (!validated.ok) return { status: 400, body: { ok: false, code: "validation", message: "Review the highlighted fields and your selection.", errors: validated.errors } };
   if (!delivery) return failure(503, "unavailable", "Quotation submission is unavailable in this demo environment. Your selection has been preserved.");
   const value = validated.value;
@@ -38,12 +38,15 @@ export async function submitQuoteRequest(input: unknown, requestId: string, deli
     entry = { fingerprint, expiresAt: now + RETENTION_MS };
     requests.set(stableRequestId, entry);
   }
+  // The internal email always uses canonical IDs and English catalog names,
+  // whatever language the visitor used; the preferred language is reported separately.
+  const english = getCatalog("en");
   const request: ResolvedQuoteRequest = {
     company: value.company, contact: value.contact, email: value.email, phone: value.phone, city: value.city,
-    requirements: value.requirements, consent: true,
+    requirements: value.requirements, consent: true, ...(value.locale ? { locale: value.locale } : {}),
     items: [...value.items].sort((a, b) => a.productId.localeCompare(b.productId)).map((item) => {
-      const product = PRODUCTS.find((candidate) => candidate.id === item.productId)!;
-      return { productId: product.id, name: product.name, category: PRODUCT_CATEGORIES[product.categoryId].label, quantity: item.quantity, demonstration: true };
+      const product = english.getProductById(item.productId)!;
+      return { productId: product.id, name: product.name, category: english.categories[product.categoryId].label, quantity: item.quantity, demonstration: true };
     }),
   };
   const activeEntry = entry;

@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PRODUCTS, getProductBySlug } from "@/features/catalog/products";
-import { PRODUCT_CATEGORIES, catalogCategoryHref } from "@/lib/product-categories";
+import { PRODUCT_RECORDS } from "@/features/catalog/products";
+import { catalogCategoryHref } from "@/lib/product-categories";
+import { getCatalog } from "@/content/catalog";
 import { DemoNotice } from "@/features/catalog/demo-notice";
 import { AddToQuote } from "@/features/quote/add-to-quote";
 import styles from "@/features/catalog/catalog.module.css";
@@ -13,21 +14,22 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/paths";
 
 export function productStaticParams() {
-  return PRODUCTS.map(({ slug }) => ({ slug }));
+  return PRODUCT_RECORDS.map(({ slug }) => ({ slug }));
 }
 
 export function productDetailMetadata(locale: Locale, slug: string): Metadata {
   const t = getDictionary(locale).productDetail;
-  const product = getProductBySlug(slug);
+  const product = getCatalog(locale).getProductBySlug(slug);
   return product
     ? { title: formatMessage(t.metaTitle, { name: product.name }), description: formatMessage(t.metaDescription, { summary: product.summary }) }
     : { title: t.notFoundTitle };
 }
 
 export function ProductDetailView({ locale, slug }: { locale: Locale; slug: string }) {
-  const product = getProductBySlug(slug);
+  const catalog = getCatalog(locale);
+  const product = catalog.getProductBySlug(slug);
   if (!product) notFound();
-  const category = PRODUCT_CATEGORIES[product.categoryId];
+  const category = catalog.categories[product.categoryId];
   const t = getDictionary(locale).productDetail;
   return (
     <main id="main-content" tabIndex={-1} className={styles.page}>

@@ -3,32 +3,36 @@
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { useId, useState } from "react";
-import {
-  PRODUCT_CATEGORIES,
-  type CatalogCategoryLinks,
+import type {
+  CatalogCategoryLinks,
+  ProductCategoryId,
 } from "@/lib/product-categories";
+import type { ProtectionZone } from "@/content/catalog";
+import type { CategoryContent } from "@/content/types";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { formatMessage } from "@/i18n/format";
 import { Lines } from "@/i18n/lines";
-import { PROTECTION_ZONES } from "./zones";
 import { WorkerIllustration } from "./worker-illustration";
 import styles from "./protection-explorer.module.css";
 
 type ProtectionExplorerProps = {
   /** Only this page's widget messages are sent to the browser. */
   messages: Dictionary["explorer"]["widget"];
+  /** Localized on the server; zone order defines the selector and markers. */
+  zones: readonly ProtectionZone[];
+  categories: Record<ProductCategoryId, Pick<CategoryContent, "name" | "description">>;
   catalogLinks?: CatalogCategoryLinks;
 };
 
 export function ProtectionExplorer({
   messages: t,
+  zones,
+  categories,
   catalogLinks = {},
 }: ProtectionExplorerProps) {
   const instanceId = useId();
-  const [selectedZone, setSelectedZone] = useState<
-    (typeof PROTECTION_ZONES)[number]
-  >(PROTECTION_ZONES[0]);
-  const category = PRODUCT_CATEGORIES[selectedZone.categoryId];
+  const [selectedZone, setSelectedZone] = useState<ProtectionZone>(zones[0]);
+  const category = categories[selectedZone.categoryId];
   const catalogHref = catalogLinks[selectedZone.categoryId];
   const detailsId = `${instanceId}-details`;
   const headingId = `${instanceId}-category`;
@@ -43,7 +47,7 @@ export function ProtectionExplorer({
       <fieldset className={styles.zonePicker}>
         <legend>{t.zoneLegend}</legend>
         <div className={styles.zoneOptions}>
-          {PROTECTION_ZONES.map((zone) => (
+          {zones.map((zone) => (
             <label
               key={zone.id}
               className={styles.zoneOption}
@@ -78,7 +82,7 @@ export function ProtectionExplorer({
             aria-label={t.hotspotsLabel}
           >
             <WorkerIllustration />
-            {PROTECTION_ZONES.map((zone, index) => (
+            {zones.map((zone, index) => (
               <button
                 key={zone.id}
                 type="button"
@@ -88,7 +92,7 @@ export function ProtectionExplorer({
                   top: `${zone.position.y}%`,
                 }}
                 data-zone-id={zone.id}
-                aria-label={formatMessage(t.hotspotLabel, { zone: zone.label, category: PRODUCT_CATEGORIES[zone.categoryId].name })}
+                aria-label={formatMessage(t.hotspotLabel, { zone: zone.label, category: categories[zone.categoryId].name })}
                 aria-pressed={selectedZone.id === zone.id}
                 aria-controls={detailsId}
                 onClick={() => setSelectedZone(zone)}

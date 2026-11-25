@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
 import type { ProductSummary } from "@/features/catalog/types";
 import { MAX_QUANTITY, removeFromQuote, setQuoteQuantity, useQuote, clearSubmittedQuote } from "./quote-store";
 import { QuoteRequestForm } from "./quote-request-form";
@@ -80,7 +79,7 @@ export function QuoteSelection({ products, available, messages }: { products: re
                   {image && <Image src={image.src} alt="" width={160} height={120} />}
                 </Link>
                 <div className={styles.itemInfo}>
-                  <p className={styles.category}>{formatMessage(t.categoryDemo, { category: PRODUCT_CATEGORIES[product.categoryId].label })}</p>
+                  <p className={styles.category}>{formatMessage(t.categoryDemo, { category: product.categoryLabel })}</p>
                   <h2><Link href={localizePath(locale, `/products/${product.slug}`)}>{product.name}</Link></h2>
                   <p className={styles.identifier}>{product.id}</p>
                   <p className={styles.summary}>{product.summary}</p>

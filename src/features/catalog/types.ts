@@ -14,4 +14,5 @@ export type Product = {
   variants: readonly { label: string; options: readonly string[] }[];
 };
 
-export type ProductSummary = Pick<Product, "id" | "slug" | "name" | "categoryId" | "summary" | "images">;
+/** Quotation page data, already localized on the server (category label included). */
+export type ProductSummary = Pick<Product, "id" | "slug" | "name" | "categoryId" | "summary" | "images"> & { categoryLabel: string };

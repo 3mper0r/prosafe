@@ -5,6 +5,7 @@ import Link from "next/link";
 import { QUOTE_LIMITS } from "./request/limits";
 import { validateQuoteRequest } from "./request/validation";
 import type { QuoteErrors } from "./request/types";
+import { quoteErrorText, readServerErrors } from "./quote-errors";
 import type { QuoteItem } from "./quote-store";
 import styles from "./quote.module.css";
 import type { Dictionary } from "@/i18n/dictionaries/en";
@@ -33,6 +34,7 @@ const fields = [
 
 export function QuoteRequestForm({ messages: t, items, knownProductIds, available, onPending, onAccepted }: Props) {
   const locale = useLocale();
+  const errorText = (error: QuoteErrors[keyof QuoteErrors]) => quoteErrorText(t.validation, error);
   const [session, setSession] = useState<Session | null>(null);
   const [pending, setPending] = useState(false);
   const [errors, setErrors] = useState<QuoteErrors>({});
@@ -76,7 +78,7 @@ export function QuoteRequestForm({ messages: t, items, knownProductIds, availabl
     const result = validateQuoteRequest({
       company: form.get("company"), contact: form.get("contact"), email: form.get("email"),
       phone: form.get("phone"), city: form.get("city"), requirements: form.get("requirements"),
-      consent: form.get("consent") === "on", website: form.get("website"), items,
+      consent: form.get("consent") === "on", website: form.get("website"), items, locale,
     }, knownProductIds);
     if (!result.ok) { setErrors(result.errors); setMessage(t.reviewFields); focusErrors(result.errors); return; }
     setErrors({});
@@ -100,9 +102,8 @@ export function QuoteRequestForm({ messages: t, items, knownProductIds, availabl
           if (data.code === "session") { await refreshSession(); setMessage(t.sessionRefreshed); }
           if (data.code === "unavailable") { setSession({ available: false, token: session.token }); setMessage(t.submissionUnavailable); }
           if (data.code === "rate_limited") setMessage(t.rateLimited);
-          if (data.code === "validation" && "errors" in data && data.errors && typeof data.errors === "object") {
-            const nextErrors: QuoteErrors = {};
-            for (const [key, value] of Object.entries(data.errors)) if (typeof value === "string" && ["company", "contact", "email", "phone", "city", "requirements", "consent", "items", "website"].includes(key)) nextErrors[key as keyof QuoteErrors] = value;
+          if (data.code === "validation" && "errors" in data) {
+            const nextErrors = readServerErrors(data.errors, t.validation);
             setErrors(nextErrors); focusErrors(nextErrors); setMessage(t.reviewFields);
           }
         }
@@ -127,14 +128,14 @@ export function QuoteRequestForm({ messages: t, items, knownProductIds, availabl
             {fields.map((field) => <div key={field.name} className={styles.formField}>
               <label htmlFor={`quote-${field.name}`}>{t.fields[field.name]} {field.required ? <span aria-hidden="true">*</span> : <span className={styles.optional}>{t.optional}</span>}</label>
               <input id={`quote-${field.name}`} name={field.name} type={"type" in field ? field.type : "text"} autoComplete={field.autoComplete} maxLength={field.max} required={field.required} aria-invalid={Boolean(errors[field.name])} aria-describedby={errors[field.name] ? `quote-${field.name}-error` : undefined} />
-              {errors[field.name] && <p id={`quote-${field.name}-error`} className={styles.fieldError}>{errors[field.name]}</p>}
+              {errors[field.name] && <p id={`quote-${field.name}-error`} className={styles.fieldError}>{errorText(errors[field.name])}</p>}
             </div>)}
           </div>
           <div className={styles.formField}>
             <label htmlFor="quote-requirements">{t.requirementsLabel} <span className={styles.optional}>{t.optional}</span></label>
             <textarea id="quote-requirements" name="requirements" rows={5} maxLength={QUOTE_LIMITS.requirements} aria-invalid={Boolean(errors.requirements)} aria-describedby="requirements-help quote-requirements-error" />
             <p id="requirements-help" className={styles.formHint}>{formatMessage(t.requirementsHelp, { max: QUOTE_LIMITS.requirements })}</p>
-            <p id="quote-requirements-error" className={styles.fieldError}>{errors.requirements}</p>
+            <p id="quote-requirements-error" className={styles.fieldError}>{errorText(errors.requirements)}</p>
           </div>
           <div className={styles.honeypot} aria-hidden="true"><label htmlFor="quote-website">{t.honeypotLabel}</label><input id="quote-website" name="website" tabIndex={-1} autoComplete="off" /></div>
           <div className={styles.consent}>
@@ -142,8 +143,8 @@ export function QuoteRequestForm({ messages: t, items, knownProductIds, availabl
             <label htmlFor="quote-consent">{t.consent} <span aria-hidden="true">*</span></label>
           </div>
           <p id="privacy-purpose" className={styles.formHint}>{t.privacyPurpose}</p>
-          <p id="quote-consent-error" className={styles.fieldError}>{errors.consent}</p>
-          <p id="quote-items-error" className={styles.fieldError}>{errors.items}</p>
+          <p id="quote-consent-error" className={styles.fieldError}>{errorText(errors.consent)}</p>
+          <p id="quote-items-error" className={styles.fieldError}>{errorText(errors.items)}</p>
           <button type="submit" className={`button button-primary ${styles.submit}`} disabled={!enabled || !items.length || pending}>{pending ? t.sending : t.submit}</button>
         </fieldset>
         <p role="status" aria-live="polite" className={styles.formStatus}>{pending ? t.sendingStatus : message}</p>

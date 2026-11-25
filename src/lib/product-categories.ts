@@ -1,45 +1,19 @@
-/** Stable public identifiers shared by the explorer and catalog. */
-export const PRODUCT_CATEGORIES = {
-  "safety-helmets": {
-    label: "Head protection",
-    name: "Safety helmets",
-    description:
-      "Protective headwear for workplace tasks. Explore helmets suited to the work and environment.",
-  },
-  "protective-eyewear": {
-    label: "Eye protection",
-    name: "Protective eyewear",
-    description:
-      "Workplace eye protection, including safety glasses and goggles for different working environments.",
-  },
-  "protective-gloves": {
-    label: "Hand protection",
-    name: "Protective gloves",
-    description:
-      "Hand protection for a range of workplace tasks, with glove types selected around the work being done.",
-  },
-  "protective-clothing": {
-    label: "Body protection",
-    name: "Protective clothing",
-    description:
-      "Workplace clothing and body coverage, including jackets, trousers, and coveralls for different working environments.",
-  },
-  "safety-footwear": {
-    label: "Foot protection",
-    name: "Safety footwear",
-    description:
-      "Workplace foot protection, including safety shoes and boots selected around the task and working environment.",
-  },
-} as const;
+/**
+ * Stable public category identifiers shared by the explorer and catalog.
+ * Language-independent: names and descriptions live in `src/content/<locale>.ts`.
+ */
+export const PRODUCT_CATEGORY_IDS = [
+  "safety-helmets",
+  "protective-eyewear",
+  "protective-gloves",
+  "protective-clothing",
+  "safety-footwear",
+] as const;
 
-export type ProductCategoryId = keyof typeof PRODUCT_CATEGORIES;
-
-export const PRODUCT_CATEGORY_IDS = Object.keys(
-  PRODUCT_CATEGORIES,
-) as ProductCategoryId[];
+export type ProductCategoryId = (typeof PRODUCT_CATEGORY_IDS)[number];
 
 export function isProductCategoryId(value: string): value is ProductCategoryId {
-  return Object.prototype.hasOwnProperty.call(PRODUCT_CATEGORIES, value);
+  return (PRODUCT_CATEGORY_IDS as readonly string[]).includes(value);
 }
 
 export function catalogCategoryHref(id: ProductCategoryId): `/products?category=${ProductCategoryId}` {

@@ -10,8 +10,10 @@
  * - "SAFETY WITHOUT COMPROMISE." is the official slogan and is not translated;
  *   it stays in the components rather than in the dictionaries.
  * - Product, industry, category and protection-zone content is data, not UI
- *   copy, and moves into the localized data model in M9.3.
+ *   copy; it lives in `src/content/<locale>.ts`.
  */
+import type { QuoteErrorCode } from "@/features/quote/request/types";
+
 export const en = {
   common: {
     skipToContent: "Skip to content",
@@ -552,6 +554,25 @@ export const en = {
       submissionUnavailable: "Submission is unavailable. Your request has not been sent and your selection is preserved.",
       rateLimited: "Too many attempts. Please wait ten minutes before retrying.",
       networkError: "We could not confirm delivery. Your details and selection are preserved. Please retry the same request.",
+      /** Field errors returned by validation (client and API) as language-independent codes. */
+      validation: {
+        invalid_text: "Enter a valid text value.",
+        too_long: "Use {max} characters or fewer.",
+        control_characters: "Remove unsupported control characters.",
+        single_line: "Use a single line.",
+        required: "This field is required.",
+        invalid_email: "Enter a valid business email address.",
+        consent_required: "Your privacy consent is required to submit this request.",
+        rejected: "Unable to submit this request. Please try again.",
+        items_required: "Select at least one product before requesting a quote.",
+        items_too_many: "Select no more than {max} products.",
+        items_invalid: "Your product selection is invalid. Review the selected items.",
+        item_unavailable: "A selected product is unavailable. Review your selection.",
+        item_duplicate: "Each product may appear only once. Adjust its quantity instead.",
+        item_quantity: "Each quantity must be a whole number from 1 to {max}.",
+        items_total: "The selection cannot exceed {max} total units.",
+        invalid_locale: "Select a supported language.",
+      } satisfies Record<QuoteErrorCode, string>,
     },
   },
   notFound: {

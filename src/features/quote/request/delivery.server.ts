@@ -10,6 +10,8 @@ export function escapeQuoteHtml(value: string): string {
   return value.replace(/[&<>"']/gu, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
 }
 
+const LANGUAGE_NAMES = { sq: "Albanian (sq)", en: "English (en)" } as const;
+
 export function createQuoteMessage(request: ResolvedQuoteRequest) {
   const lines = [
     "PROSAFE — B2B quotation request",
@@ -20,6 +22,7 @@ export function createQuoteMessage(request: ResolvedQuoteRequest) {
     `Business email: ${request.email}`,
     `Phone: ${request.phone || "Not provided"}`,
     `Delivery location / city: ${request.city || "Not provided"}`,
+    `Preferred language: ${request.locale ? LANGUAGE_NAMES[request.locale] : "Not specified"}`,
     "Privacy consent: given for responding to this quotation request.",
     "",
     "Selected products:",

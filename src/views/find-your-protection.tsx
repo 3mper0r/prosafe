@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { INDUSTRIES, getIndustryBySlug } from "@/features/industries/industries";
+import { getCatalog } from "@/content/catalog";
 import { IndustryEquipment } from "@/features/industries/industry-equipment";
 import { RiskAssessmentNote } from "@/features/industries/risk-assessment-note";
 import catalogStyles from "@/features/catalog/catalog.module.css";
@@ -23,7 +23,8 @@ export function FindYourProtectionView({ locale, searchParams }: {
   searchParams: { industry?: string | string[] };
 }) {
   const input = searchParams.industry;
-  const industry = typeof input === "string" ? getIndustryBySlug(input) : undefined;
+  const catalog = getCatalog(locale);
+  const industry = typeof input === "string" ? catalog.getIndustryBySlug(input) : undefined;
   const invalid = Boolean(input && !industry);
   const t = getDictionary(locale).findYourProtection;
   return (
@@ -41,7 +42,7 @@ export function FindYourProtectionView({ locale, searchParams }: {
             {t.industryLabel}
             <select name="industry" defaultValue={industry?.slug ?? ""} required aria-describedby="industry-help">
               <option value="" disabled>{t.industryPlaceholder}</option>
-              {INDUSTRIES.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}
+              {catalog.industries.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}
             </select>
           </label>
           <button type="submit" className="button button-primary">

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { INDUSTRIES, industryCatalogHref } from "@/features/industries/industries";
+import { industryCatalogHref } from "@/features/industries/industries";
 import { RiskAssessmentNote } from "@/features/industries/risk-assessment-note";
-import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
+import { getCatalog } from "@/content/catalog";
 import catalogStyles from "@/features/catalog/catalog.module.css";
 import styles from "@/features/industries/industries.module.css";
 import type { Locale } from "@/i18n/config";
@@ -19,6 +19,7 @@ export function industriesMetadata(locale: Locale): Metadata {
 
 export function IndustriesView({ locale }: { locale: Locale }) {
   const t = getDictionary(locale).industries;
+  const catalog = getCatalog(locale);
   return (
     <main id="main-content" tabIndex={-1} className={catalogStyles.page}>
       <header className={catalogStyles.intro}>
@@ -34,7 +35,7 @@ export function IndustriesView({ locale }: { locale: Locale }) {
       </div>
       <RiskAssessmentNote locale={locale} />
       <ul className={styles.industryList} aria-label={t.listLabel}>
-        {INDUSTRIES.map((industry, index) => (
+        {catalog.industries.map((industry, index) => (
           <li key={industry.slug} className={styles.industryCard} data-industry={industry.slug}>
             <div className={styles.industryTitle}>
               <p className={styles.eyebrow}>{formatMessage(t.cardEyebrow, { number: `0${index + 1}` })}</p>
@@ -43,7 +44,7 @@ export function IndustriesView({ locale }: { locale: Locale }) {
             <div className={styles.industryBody}>
               <p>{industry.description}</p>
               <ul className={styles.categoryTags} aria-label={formatMessage(t.categoriesLabel, { industry: industry.name })}>
-                {industry.categoryIds.map((id) => <li key={id}>{PRODUCT_CATEGORIES[id].label}</li>)}
+                {industry.categoryIds.map((id) => <li key={id}>{catalog.categories[id].label}</li>)}
               </ul>
               <div className={styles.industryActions}>
                 <Link href={localizePath(locale, `/industries/${industry.slug}`)} className={catalogStyles.textLink}>

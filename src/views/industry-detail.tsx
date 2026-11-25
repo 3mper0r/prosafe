@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { INDUSTRIES, getIndustryBySlug } from "@/features/industries/industries";
+import { INDUSTRY_RECORDS } from "@/features/industries/industries";
+import { getCatalog } from "@/content/catalog";
 import { IndustryEquipment } from "@/features/industries/industry-equipment";
 import { RiskAssessmentNote } from "@/features/industries/risk-assessment-note";
 import catalogStyles from "@/features/catalog/catalog.module.css";
@@ -11,18 +12,18 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/paths";
 
 export function industryStaticParams() {
-  return INDUSTRIES.map(({ slug }) => ({ slug }));
+  return INDUSTRY_RECORDS.map(({ slug }) => ({ slug }));
 }
 
 export function industryDetailMetadata(locale: Locale, slug: string): Metadata {
-  const industry = getIndustryBySlug(slug);
+  const industry = getCatalog(locale).getIndustryBySlug(slug);
   return industry
     ? { title: industry.name, description: industry.description }
     : { title: getDictionary(locale).industryDetail.notFoundTitle };
 }
 
 export function IndustryDetailView({ locale, slug }: { locale: Locale; slug: string }) {
-  const industry = getIndustryBySlug(slug);
+  const industry = getCatalog(locale).getIndustryBySlug(slug);
   if (!industry) notFound();
   const t = getDictionary(locale).industryDetail;
   return (

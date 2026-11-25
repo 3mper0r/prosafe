@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { PRODUCTS } from "@/features/catalog/products";
+import { getCatalog } from "@/content/catalog";
 import { DemoNotice } from "@/features/catalog/demo-notice";
 import { QuoteSelection } from "@/features/quote/quote-selection";
 import { getQuoteDeliveryAvailability } from "@/features/quote/request/delivery.server";
@@ -21,7 +21,8 @@ export async function QuoteView({ locale }: { locale: Locale }) {
   await connection();
   const available = getQuoteDeliveryAvailability() && quoteHttpConfigurationValid();
   const t = getDictionary(locale).quote;
-  const summaries = PRODUCTS.map(({ id, slug, name, categoryId, summary, images }) => ({ id, slug, name, categoryId, summary, images }));
+  const catalog = getCatalog(locale);
+  const summaries = catalog.products.map(({ id, slug, name, categoryId, summary, images }) => ({ id, slug, name, categoryId, summary, images, categoryLabel: catalog.categories[categoryId].label }));
   return <>
     <a className="skip-link" href="#main-content">{getDictionary(locale).common.skipToContent}</a>
     <Header />

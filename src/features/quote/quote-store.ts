@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { getProductById } from "@/features/catalog/products";
+import { isProductId } from "@/features/catalog/products";
 import { QUOTE_LIMITS } from "./request/limits";
 
 export const QUOTE_STORAGE_KEY = "prosafe.quote.v1";
@@ -24,7 +24,7 @@ function decode(raw: string | null): QuoteItem[] {
     const candidates: unknown[] = data.items;
     const quantities = new Map<string, number>();
     for (const item of candidates) {
-      if (!item || typeof item !== "object" || !("productId" in item) || typeof item.productId !== "string" || !getProductById(item.productId) || !("quantity" in item) || typeof item.quantity !== "number" || !Number.isSafeInteger(item.quantity) || item.quantity < 1) continue;
+      if (!item || typeof item !== "object" || !("productId" in item) || typeof item.productId !== "string" || !isProductId(item.productId) || !("quantity" in item) || typeof item.quantity !== "number" || !Number.isSafeInteger(item.quantity) || item.quantity < 1) continue;
       quantities.set(item.productId, Math.min(MAX_QUANTITY, (quantities.get(item.productId) ?? 0) + item.quantity));
     }
     return Array.from(quantities, ([productId, quantity]) => ({ productId, quantity }));
@@ -82,7 +82,7 @@ function save(items: readonly QuoteItem[]) {
 }
 
 export function addToQuote(productId: string) {
-  if (!getProductById(productId)) return;
+  if (!isProductId(productId)) return;
   const items = getSnapshot().items;
   const existing = items.find((item) => item.productId === productId);
   save(existing ? items.map((item) => item.productId === productId ? { ...item, quantity: Math.min(MAX_QUANTITY, item.quantity + 1) } : item) : [...items, { productId, quantity: 1 }]);

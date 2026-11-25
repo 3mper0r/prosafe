@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
+import { getCatalog } from "@/content/catalog";
 import { AddToQuote } from "@/features/quote/add-to-quote";
 import type { Product } from "./types";
 import styles from "./catalog.module.css";
@@ -22,7 +22,7 @@ export function ProductCard({ locale, product, headingLevel = 2 }: { locale: Loc
           <span className={styles.badge}>{t.badge}</span>
         </div>
         <div className={styles.cardBody}>
-          <p className={styles.category}>{PRODUCT_CATEGORIES[product.categoryId].label}</p>
+          <p className={styles.category}>{getCatalog(locale).categories[product.categoryId].label}</p>
           <Heading>{product.name} <ArrowUpRight size={17} aria-hidden="true" /></Heading>
           <p>{product.summary}</p>
         </div>
