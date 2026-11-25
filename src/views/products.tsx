@@ -68,7 +68,10 @@ export function ProductsView({ locale, searchParams: query }: {
       {categoryInput && !category && <p className={styles.note}>{t.unknownCategory}</p>}
       {industryInput && !industry && <p className={styles.note}>{t.unknownIndustry}</p>}
       <div className={styles.resultsBar}>
-        <p>{formatPlural(locale, products.length, t.resultCount)}{industry ? formatMessage(t.resultIndustry, { industry: industry.name }) : ""}{category ? formatMessage(t.resultCategory, { category: catalog.categories[category].label }) : t.resultAllCategories}{search ? formatMessage(t.resultSearch, { search }) : ""}</p>
+        <p>{formatPlural(locale, products.length, t.resultSummary, {
+          filters: (industry ? formatMessage(t.resultFilterIndustry, { industry: industry.name }) : "") + (category ? formatMessage(t.resultFilterCategory, { category: catalog.categories[category].label }) : t.resultFilterAllCategories),
+          searchMatch: search ? formatPlural(locale, products.length, t.resultSearch, { search }) : "",
+        })}</p>
         {(search || categoryInput || industryInput) && <Link href={localizePath(locale, "/products")} className={styles.textLink}>{t.clearFilters}</Link>}
       </div>
       {products.length ? (

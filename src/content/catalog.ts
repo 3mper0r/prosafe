@@ -11,6 +11,13 @@ import type { CatalogContent, CategoryContent } from "./types";
 
 const CONTENT: Record<Locale, CatalogContent> = { sq, en };
 
+/**
+ * Other languages whose product names, keywords and category labels are also
+ * searchable. Albanian visitors often use English trade terms ("helmet", "boots");
+ * results are always shown in the page's own language.
+ */
+const ALSO_SEARCH: Record<Locale, readonly Locale[]> = { sq: ["en"], en: [] };
+
 export type Industry = {
   slug: IndustrySlug;
   name: string;
@@ -66,10 +73,19 @@ function buildCatalog(locale: Locale) {
   });
 
   // Normalized search text per product, prepared once: name, summary, description,
-  // ID/SKU, category label and this language's keywords (same fields as before).
-  const searchText = new Map(products.map((product) => [product.id, buildSearchText([
-    product.name, product.summary, product.description, product.id, categories[product.categoryId].label, ...product.keywords,
-  ])]));
+  // ID/SKU, category label and keywords in this language, plus the language's
+  // aliases and the name, keywords and category label in ALSO_SEARCH languages.
+  const searchText = new Map(products.map((product) => {
+    const id = product.id as ProductId;
+    const otherLanguages = ALSO_SEARCH[locale].flatMap((other) => {
+      const text = CONTENT[other].products[id];
+      return [text.name, ...text.keywords, CONTENT[other].categories[product.categoryId].label];
+    });
+    return [product.id, buildSearchText([
+      product.name, product.summary, product.description, product.id, categories[product.categoryId].label, ...product.keywords,
+      ...content.searchAliases, ...otherLanguages,
+    ])];
+  }));
 
   const industries: readonly Industry[] = INDUSTRY_RECORDS.map((record) => ({ ...content.industries[record.slug], ...record }));
 

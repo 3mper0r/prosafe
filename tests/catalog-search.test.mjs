@@ -71,8 +71,54 @@ test("category, industry and search filters combine", () => {
   assert.deepEqual(find(en, "gloves", { industry: maintenance }), ["DEMO-HN-003"]);
 });
 
-test("each language searches its own prepared content", () => {
-  // Albanian content is an English placeholder until M9.4, so results currently match.
-  assert.deepEqual(find(sq, "helmet"), find(en, "helmet"));
-  assert.deepEqual(find(sq, "DEMO-EY-002"), ["DEMO-EY-002"]);
+const HELMETS = ["DEMO-HD-001", "DEMO-HD-002", "DEMO-HD-003"];
+const BOOTS = ["DEMO-FT-001", "DEMO-FT-003"];
+const FOOTWEAR = ["DEMO-FT-001", "DEMO-FT-002", "DEMO-FT-003"];
+
+test("Albanian search matches Albanian terms with or without diacritics, in any case", () => {
+  for (const query of ["helmetë", "helmete", "HELMETË", "kaskë", "kaske", "KASKE"]) assert.deepEqual(find(sq, query), HELMETS, query);
+  for (const query of ["çizme", "cizme", "ÇIZME", "Cizme"]) assert.deepEqual(find(sq, query), BOOTS, query);
+  for (const query of ["këpucë", "kepuce", "KËPUCË"]) assert.deepEqual(find(sq, query), FOOTWEAR, query);
+  assert.deepEqual(find(sq, "doreza"), ["DEMO-HN-001", "DEMO-HN-002", "DEMO-HN-003"]);
+  assert.deepEqual(find(sq, "syze"), ["DEMO-EY-001", "DEMO-EY-002", "DEMO-EY-003"]);
+  assert.deepEqual(find(sq, "mbrojtja e kokes"), HELMETS);
+  assert.deepEqual(find(sq, "kombinezon"), ["DEMO-BD-003"]);
+});
+
+test("Albanian search also matches English trade terms but shows Albanian results", () => {
+  assert.deepEqual(find(sq, "helmet"), HELMETS);
+  assert.deepEqual(find(sq, "hard hat"), ["DEMO-HD-001", "DEMO-HD-002"]);
+  assert.deepEqual(find(sq, "boots"), BOOTS);
+  assert.deepEqual(find(sq, "gloves"), ["DEMO-HN-001", "DEMO-HN-002", "DEMO-HN-003"]);
+  assert.deepEqual(find(sq, "safety glasses"), ["DEMO-EY-001"]);
+  assert.deepEqual(find(sq, "coverall"), ["DEMO-BD-003"]);
+  assert.deepEqual(find(sq, "head protection"), HELMETS);
+  const results = sq.filterProducts({ query: "helmet" });
+  assert.deepEqual(results.map((product) => product.name), ["Helmetë mbrojtëse me strehë", "Helmetë pune me strehë rrethore", "Helmetë pune me rrip nënmjekre"]);
+});
+
+test("PMP and PPE abbreviations match every product in Albanian only", () => {
+  for (const query of ["PMP", "pmp", "PPE", "pajisje mbrojtese personale"]) assert.equal(find(sq, query).length, 15, query);
+  assert.deepEqual(find(sq, "pmp helmetë"), HELMETS);
+  assert.deepEqual(find(en, "ppe"), [], "English results are unchanged (no aliases)");
+});
+
+test("English search does not match Albanian-only terms", () => {
+  for (const query of ["kaskë", "kepuce", "çizme", "doreza"]) assert.deepEqual(find(en, query), [], query);
+});
+
+test("IDs and SKUs match in both languages", () => {
+  for (const catalog of [sq, en]) {
+    assert.deepEqual(find(catalog, "DEMO-EY-002"), ["DEMO-EY-002"]);
+    assert.deepEqual(find(catalog, "demo-hn"), ["DEMO-HN-001", "DEMO-HN-002", "DEMO-HN-003"]);
+  }
+});
+
+test("Albanian combined filters and unmatched queries", () => {
+  const construction = sq.getIndustryBySlug("construction");
+  assert.deepEqual(find(sq, "cizme", { industry: construction, categoryId: "safety-footwear" }), ["DEMO-FT-001"]);
+  assert.deepEqual(find(sq, "helmet", { industry: construction }), ["DEMO-HD-001"]);
+  assert.deepEqual(find(sq, "kaske", { categoryId: "safety-footwear" }), []);
+  assert.deepEqual(find(sq, "", { industry: construction }).length, 5);
+  assert.deepEqual(find(sq, "xyzxyz"), []);
 });

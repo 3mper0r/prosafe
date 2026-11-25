@@ -286,5 +286,7 @@ export const en = {
       clear: "Clear",
       smoke: "Smoke"
     }
-  }
+  },
+  // No aliases: English search results stay exactly as before M9.4.
+  searchAliases: []
 } as const satisfies CatalogContent;

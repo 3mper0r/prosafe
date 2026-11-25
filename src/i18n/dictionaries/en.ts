@@ -346,11 +346,13 @@ export const en = {
     applyFilters: "APPLY FILTERS",
     unknownCategory: "Unknown category. Showing all categories instead.",
     unknownIndustry: "Unknown industry. Showing all industries instead.",
-    resultCount: { one: "{count} example", other: "{count} examples" },
-    resultIndustry: " / {industry}",
-    resultCategory: " / {category}",
-    resultAllCategories: " / All categories",
-    resultSearch: " matching “{search}”",
+    /** Whole results sentence; {filters} and {searchMatch} are the optional parts below. */
+    resultSummary: { one: "{count} example{filters}{searchMatch}", other: "{count} examples{filters}{searchMatch}" },
+    resultFilterIndustry: " / {industry}",
+    resultFilterCategory: " / {category}",
+    resultFilterAllCategories: " / All categories",
+    /** Plural because some languages inflect the verb by the result count. */
+    resultSearch: { one: " matching “{search}”", other: " matching “{search}”" },
     clearFilters: "Clear filters",
     resultsLabel: "Demonstration products",
     emptyEyebrow: "NO MATCHING EQUIPMENT",
@@ -417,7 +419,8 @@ export const en = {
     categoriesHeading: "Relevant categories to explore",
     categoriesIntro: "A browsing starting point, not a complete equipment list for every task.",
     examplesEyebrow: "02 / DEMONSTRATION EQUIPMENT",
-    examplesHeading: "Examples for {industry}",
+    /** Params: {industry} as written and {industryLower} in lower case. */
+    examplesHeading: "Examples for {industryLower}",
     filterInCatalog: "Filter in the catalog",
     productsLabel: "Industry demonstration products",
     quotePromptLabel: "Prepare a quote selection",
@@ -458,12 +461,13 @@ export const en = {
     /** Passed to the client ProtectionExplorer component as props. */
     widget: {
       zoneLegend: "Select a protection zone",
-      viewCategory: "View {category}",
+      /** Params: {category} as written and {categoryLower} in lower case. */
+      viewCategory: "View {categoryLower}",
       hotspotsLabel: "Full-body worker protection hotspots",
       hotspotLabel: "{zone} — {category}",
       figcaption: ["Temporary full-body illustration.", "Final worker photography will replace this visual."],
       selectedEyebrow: "SELECTED PROTECTION / {zone}",
-      browseCategory: "Browse {category}",
+      browseCategory: "Browse {categoryLower}",
       catalogComingSoon: "Catalog coming soon. This category will become available when the product catalog launches.",
       selectionNote:
         "Explore another zone using the worker markers or zone selector. Your selection stays visible until you choose another zone.",

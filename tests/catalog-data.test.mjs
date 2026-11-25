@@ -85,8 +85,18 @@ test("every localized text value is a non-empty trimmed string", () => {
   }
 });
 
-test("Albanian content sections are explicit English placeholders until M9.4", () => {
-  for (const section of Object.keys(en)) assert.equal(sq[section], en[section], `sq.${section}`);
+test("Albanian catalog content is translated, keeping identifiers and literal values", () => {
+  const walk = (value, path) => typeof value === "string" ? [[path, value]]
+    : Array.isArray(value) ? value.flatMap((item, index) => walk(item, `${path}[${index}]`))
+    : Object.entries(value).flatMap(([key, item]) => walk(item, `${path}.${key}`));
+  const english = new Map(walk(en, ""));
+  // Allowed to match English: abbreviations and the language-neutral color "Gri"/"Gray" differ anyway.
+  const untranslated = walk(sq, "").filter(([path, value]) => english.get(path) === value && !path.startsWith(".searchAliases")).map(([path]) => path);
+  assert.deepEqual(untranslated, [], "Albanian values still identical to English");
+  assert.deepEqual(en.searchAliases, [], "English has no aliases, so English results are unchanged");
+  assert.equal(sq.categories["safety-footwear"].name, "Këpucë mbrojtëse");
+  assert.equal(sq.industries.construction.name, "Ndërtimtari");
+  for (const id of Object.keys(en.products)) assert.ok(sq.products[id].keywords.length > 0, `${id} Albanian keywords`);
 });
 
 test("the resolved catalog keeps language-independent fields in both languages", () => {
@@ -101,6 +111,9 @@ test("the resolved catalog keeps language-independent fields in both languages",
   const glasses = english.getProductBySlug("wraparound-work-glasses");
   assert.deepEqual(glasses.variants, [{ label: "Example lens appearances", options: ["Clear", "Smoke"] }]);
   assert.deepEqual(english.getProductById("DEMO-FT-001").variants, [{ label: "Example EU sizes", options: ["40", "41", "42", "43", "44", "45", "46"] }]);
+  // Literal sizes are shared; only labels and color names are translated.
+  assert.deepEqual(albanian.getProductById("DEMO-FT-001").variants, [{ label: "Shembuj masash EU", options: ["40", "41", "42", "43", "44", "45", "46"] }]);
+  assert.deepEqual(albanian.getProductBySlug("wraparound-work-glasses").variants, [{ label: "Shembuj të pamjes së thjerrëzave", options: ["Transparente", "Ngjyrë tymi"] }]);
   assert.deepEqual(glasses.specifications.map((spec) => spec.label), ["Construction concept", "Format", "Manufacturer", "Safety ratings"]);
   assert.equal(english.getIndustryBySlug("electrical-work").equipmentNote.startsWith("These generic demos"), true);
   assert.equal(english.getIndustryBySlug("construction").equipmentNote, undefined);

@@ -135,10 +135,32 @@ test("the client renders API validation errors in the visitor's language (no del
     return [quoteErrorText(messages, errors.company), quoteErrorText(messages, errors.items)];
   };
   assert.deepEqual(render("en"), ["Use 120 characters or fewer.", "A selected product is unavailable. Review your selection."]);
-  // Albanian validation messages are English placeholders until M9.4.
-  assert.deepEqual(render("sq"), render("en"));
+  assert.deepEqual(render("sq"), ["Përdorni 120 karaktere ose më pak.", "Një produkt i përzgjedhur nuk është i disponueshëm. Kontrolloni përzgjedhjen tuaj."]);
   // Malformed or unknown error entries from a response are ignored rather than rendered.
   assert.deepEqual(readServerErrors({ company: "Legacy string message", email: { code: "not_a_code" }, admin: { code: "required" }, phone: { code: "too_long", params: { max: "40" } } }, dictionaries.en.quote.form.validation), { phone: { code: "too_long" } });
   assert.deepEqual(readServerErrors(null, dictionaries.en.quote.form.validation), {});
   assert.equal(handler.deliveries.length, 0);
+});
+
+test("Albanian validation messages render with interpolated limits for every rule", () => {
+  const t = dictionaries.sq.quote.form.validation;
+  const render = (error) => t[error.code].replace("{max}", String(error.params?.max ?? ""));
+  const cases = [
+    [valid({ company: "x".repeat(121) }), "company", "Përdorni 120 karaktere ose më pak."],
+    [valid({ company: "   " }), "company", "Kjo fushë është e detyrueshme."],
+    [valid({ company: 5 }), "company", "Shënoni një vlerë tekstuale të vlefshme."],
+    [valid({ company: "A\u0000B" }), "company", "Hiqni karakteret e kontrollit që nuk mbështeten."],
+    [valid({ email: "bad" }), "email", "Shënoni një adresë të vlefshme email-i biznesi."],
+    [valid({ phone: "1\n2" }), "phone", "Përdorni vetëm një rresht."],
+    [valid({ consent: false }), "consent", "Pëlqimi juaj për privatësinë është i nevojshëm për ta dërguar këtë kërkesë."],
+    [valid({ website: "x" }), "website", "Kjo kërkesë nuk mund të dërgohet. Ju lutemi provoni përsëri."],
+    [valid({ items: [] }), "items", "Përzgjidhni të paktën një produkt para se të kërkoni ofertë."],
+    [valid({ items: ["x"] }), "items", "Përzgjedhja juaj e produkteve nuk është e vlefshme. Kontrolloni artikujt e përzgjedhur."],
+    [valid({ items: [{ productId: ids[0], quantity: 1 }, { productId: ids[0], quantity: 1 }] }), "items", "Çdo produkt mund të shfaqet vetëm një herë. Rregulloni sasinë e tij."],
+    [valid({ items: [{ productId: ids[0], quantity: 1000 }] }), "items", "Çdo sasi duhet të jetë numër i plotë nga 1 deri në 999."],
+    [valid({ items: Array.from({ length: 21 }, () => ({ productId: ids[0], quantity: 1 })) }), "items", "Përzgjidhni jo më shumë se 20 produkte."],
+    [valid({ items: ids.slice(0, 6).map((productId) => ({ productId, quantity: 999 })) }), "items", "Përzgjedhja nuk mund të kalojë 5000 njësi gjithsej."],
+    [valid({ locale: "de" }), "locale", "Zgjidhni një gjuhë të mbështetur."],
+  ];
+  for (const [input, field, message] of cases) assert.equal(render(validateQuoteRequest(input, ids).errors[field]), message, field);
 });

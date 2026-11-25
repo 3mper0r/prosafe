@@ -52,4 +52,9 @@ export type CatalogContent = {
     labels: Record<VariantKind, string>;
     colors: Record<ColorOption, string>;
   };
+  /**
+   * Extra search terms matched on every product in this language (for example
+   * the abbreviations PMP/PPE). Empty in English to keep its results unchanged.
+   */
+  searchAliases: readonly string[];
 };

@@ -68,7 +68,7 @@ export function ProtectionExplorer({
           ))}
         </div>
         <a href={`#${detailsId}`} className={styles.selectionJump}>
-          {formatMessage(t.viewCategory, { category: category.name.toLowerCase() })}{" "}
+          {formatMessage(t.viewCategory, { category: category.name, categoryLower: category.name.toLowerCase() })}{" "}
           <ArrowDown size={16} aria-hidden="true" />
         </a>
       </fieldset>
@@ -134,7 +134,7 @@ export function ProtectionExplorer({
                 href={catalogHref}
                 className={`button button-primary ${styles.browseButton}`}
               >
-                {formatMessage(t.browseCategory, { category: category.name.toLowerCase() })}{" "}
+                {formatMessage(t.browseCategory, { category: category.name, categoryLower: category.name.toLowerCase() })}{" "}
                 <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
             ) : (
@@ -145,7 +145,7 @@ export function ProtectionExplorer({
                   className={styles.unavailableButton}
                   aria-describedby={catalogStatusId}
                 >
-                  {formatMessage(t.browseCategory, { category: category.name.toLowerCase() })}{" "}
+                  {formatMessage(t.browseCategory, { category: category.name, categoryLower: category.name.toLowerCase() })}{" "}
                   <ArrowUpRight size={18} aria-hidden="true" />
                 </button>
                 <p id={catalogStatusId} className={styles.catalogStatus}>

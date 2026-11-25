@@ -36,7 +36,7 @@ export function IndustryEquipment({ locale, industry }: { locale: Locale; indust
         <div className={styles.sectionHeading}>
           <div>
             <p className={styles.eyebrow}>{t.examplesEyebrow}</p>
-            <h2 id="examples-heading">{formatMessage(t.examplesHeading, { industry: industry.name.toLocaleLowerCase(locale) })}</h2>
+            <h2 id="examples-heading">{formatMessage(t.examplesHeading, { industry: industry.name, industryLower: industry.name.toLocaleLowerCase(locale) })}</h2>
           </div>
           <Link href={localizePath(locale, industryCatalogHref(industry))} className={catalogStyles.textLink}>
             {t.filterInCatalog} <ArrowUpRight size={16} aria-hidden="true" />
