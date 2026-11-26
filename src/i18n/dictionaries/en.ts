@@ -37,6 +37,8 @@ export const en = {
     mobileMenuTitle: "PROSAFE / Navigation",
     openNavigation: "Open navigation",
     closeNavigation: "Close navigation",
+    /** Accessible name of the SQ / EN switcher. */
+    languageLabel: "Language",
   },
   footer: {
     navigationLabel: "Company and legal navigation",

@@ -8,6 +8,7 @@ import { Wordmark } from "@/components/ui/wordmark";
 import { useLocale, useMessages } from "@/i18n/locale-context";
 import { localizePath, stripLocale, type InternalPath } from "@/i18n/paths";
 import { QuoteLink } from "@/features/quote/quote-link";
+import { LanguageSwitcher } from "./language-switcher";
 import styles from "./header.module.css";
 
 function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
@@ -61,6 +62,7 @@ export function Header() {
           <NavigationLinks />
         </ul>
       </nav>
+      <LanguageSwitcher className={styles.desktopLanguage} />
       <QuoteLink className={`button button-primary header-quote ${styles.quoteLink}`} />
       <QuoteLink className={styles.mobileQuote} />
       <button
@@ -101,6 +103,7 @@ export function Header() {
           <span id="mobile-menu-title" className="technical-label">
             {t.mobileMenuTitle}
           </span>
+          <LanguageSwitcher className={styles.menuLanguage} />
           <button
             type="button"
             className="menu-close"

@@ -397,6 +397,7 @@ export const sq = {
     mobileMenuTitle: "PROSAFE / Navigimi",
     openNavigation: "Hap navigimin",
     closeNavigation: "Mbyll navigimin",
+    languageLabel: "Gjuha",
   },
   footer: {
     navigationLabel: "Navigimi i kompanisë dhe informacioni ligjor",
