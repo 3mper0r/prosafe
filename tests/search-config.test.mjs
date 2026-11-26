@@ -15,7 +15,7 @@ const ORIGIN = "https://prosaferks.com";
 const DISALLOW_ALL = { rules: { userAgent: "*", disallow: "/" } };
 
 function withEnv(values, run) {
-  const saved = { SITE_URL: process.env.SITE_URL, SEARCH_INDEXING: process.env.SEARCH_INDEXING };
+  const saved = Object.fromEntries(["SITE_URL", "SEARCH_INDEXING", ...Object.keys(values)].map((key) => [key, process.env[key]]));
   try {
     for (const [key, value] of Object.entries(values)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
     return run();
@@ -30,6 +30,7 @@ const observe = () => {
     canonical: page.alternates?.canonical,
     xDefault: page.alternates?.languages?.["x-default"],
     ogUrl: page.openGraph.url,
+    pageRobots: page.robots,
     sitemap: sitemap().length,
     robots: robots(),
   };
@@ -53,6 +54,7 @@ test("configuration matrix: indexing requires a valid SITE_URL and SEARCH_INDEXI
         expected, name);
       assert.equal(result.ogUrl, result.canonical, `${name}: og:url follows the canonical`);
       assert.equal(result.xDefault, expected.canonical && `${ORIGIN}/about`, `${name}: x-default`);
+      assert.deepEqual(result.pageRobots, expected.indexable ? { index: true, follow: true } : NOINDEX, `${name}: page robots`);
     });
   }
 });
@@ -71,16 +73,48 @@ test("invalid SEARCH_INDEXING values fail closed", () => {
   assert.equal(isSearchIndexingEnabled(undefined), false);
 });
 
-test("invalid SITE_URL values are rejected whatever SEARCH_INDEXING says", () => {
+const INVALID_SITE_URLS = ["http://prosaferks.com", "https://prosaferks.com/path", "https://u:p@prosaferks.com", "https://prosaferks.com/?q=1", "nonsense"];
+const BUILD = { NEXT_PHASE: "phase-production-build" };
+
+test("invalid SITE_URL fails the production build whatever SEARCH_INDEXING says", () => {
   for (const searchIndexing of [undefined, "enabled"]) {
-    for (const value of ["http://prosaferks.com", "https://prosaferks.com/path", "https://u:p@prosaferks.com", "https://prosaferks.com/?q=1", "nonsense"]) {
-      withEnv({ SITE_URL: value, SEARCH_INDEXING: searchIndexing }, () => {
+    for (const value of INVALID_SITE_URLS) {
+      withEnv({ ...BUILD, SITE_URL: value, SEARCH_INDEXING: searchIndexing }, () => {
         assert.throws(() => getSearchConfig(), /SITE_URL/u, value);
         assert.throws(() => robots(), /SITE_URL/u, value);
         assert.throws(() => sitemap(), /SITE_URL/u, value);
+        assert.throws(() => indexableMetadata("sq", "/about", { title: "A", description: "D." }), /SITE_URL/u, value);
       });
     }
   }
+});
+
+test("invalid SITE_URL at runtime fails closed, logs once and never exposes the value", () => {
+  const logged = [];
+  const original = console.error;
+  console.error = (...args) => logged.push(args.join(" "));
+  try {
+    for (const searchIndexing of [undefined, "enabled"]) {
+      for (const value of INVALID_SITE_URLS) {
+        withEnv({ NEXT_PHASE: undefined, SITE_URL: value, SEARCH_INDEXING: searchIndexing }, () => {
+          assert.deepEqual(getSearchConfig(), { origin: undefined, indexable: false }, value);
+          assert.deepEqual(robots(), DISALLOW_ALL, value);
+          assert.deepEqual(sitemap(), [], value);
+          const page = indexableMetadata("en", "/about", { title: "About", description: "D." });
+          assert.equal(page.alternates, undefined, `${value}: no canonical or hreflang`);
+          assert.equal(page.openGraph.url, undefined, `${value}: no og:url`);
+          assert.deepEqual(page.robots, NOINDEX, value);
+        });
+      }
+    }
+  } finally {
+    console.error = original;
+  }
+  assert.equal(logged.length, 1, "one configuration error per Worker instance");
+  assert.match(logged[0], /^Configuration error: SITE_URL must be an HTTPS origin/u);
+  for (const value of INVALID_SITE_URLS) assert.ok(!logged[0].includes(value), "the configured value is not logged");
+  // A valid value afterwards still works normally.
+  withEnv({ NEXT_PHASE: undefined, SITE_URL: ORIGIN, SEARCH_INDEXING: "enabled" }, () => assert.deepEqual(getSearchConfig(), { origin: ORIGIN, indexable: true }));
 });
 
 test("quotation, legal drafts and 404s use an explicit noindex under every configuration", async () => {
@@ -101,6 +135,11 @@ test("quotation, legal drafts and 404s use an explicit noindex under every confi
     const source = await readFile(new URL(`../${file}`, import.meta.url), "utf8");
     assert.match(source, /: \{ title: [^}]*notFoundTitle, robots: NOINDEX \}/u, `${file}: unknown slugs are noindex without alternates`);
   }
+  // The root layout default is noindex: only indexableMetadata() may emit index, so a
+  // page without its own robots metadata (vinext's root 404) is never indexable.
+  const root = await readFile(new URL("../src/app/root-document.tsx", import.meta.url), "utf8");
+  assert.match(root, /robots: NOINDEX,/u, "root layout default");
+  assert.doesNotMatch(root, /index: indexable|\{ indexable \}|\.indexable/u, "root layout never decides indexing");
   for (const tree of ["(sq)", "en"]) {
     for (const [file, fn] of [["not-found.tsx", "notFoundMetadata"], ["products/[slug]/not-found.tsx", "productNotFoundMetadata"], ["industries/[slug]/not-found.tsx", "industryNotFoundMetadata"]]) {
       const source = await readFile(new URL(`../src/app/${tree}/${file}`, import.meta.url), "utf8");

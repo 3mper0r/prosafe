@@ -12,7 +12,7 @@ const { default: robots } = compiled.load("src/app/robots.ts");
 const ORIGIN = "https://prosaferks.com";
 
 function withEnv(values, run) {
-  const saved = { SITE_URL: process.env.SITE_URL, SEARCH_INDEXING: process.env.SEARCH_INDEXING };
+  const saved = Object.fromEntries(["SITE_URL", "SEARCH_INDEXING", ...Object.keys(values)].map((key) => [key, process.env[key]]));
   try {
     for (const [key, value] of Object.entries(values)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
     return run();
@@ -118,9 +118,9 @@ test("robots.txt with indexing enabled: allow, but exclude API and both quotatio
   });
 });
 
-test("invalid SITE_URL values are rejected instead of producing wrong URLs", () => {
+test("invalid SITE_URL values fail the build instead of producing wrong URLs", () => {
   for (const value of ["http://prosaferks.com", "https://prosaferks.com/path", "https://user:pass@prosaferks.com", "https://prosaferks.com/?x=1", "not a url"]) {
-    withEnv({ SITE_URL: value, SEARCH_INDEXING: "enabled" }, () => {
+    withEnv({ NEXT_PHASE: "phase-production-build", SITE_URL: value, SEARCH_INDEXING: "enabled" }, () => {
       assert.throws(() => sitemap(), /SITE_URL/u, value);
       assert.throws(() => indexableMetadata("sq", "/about", page), /SITE_URL/u, value);
     });

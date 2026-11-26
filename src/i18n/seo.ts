@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PRODUCT_RECORDS } from "@/features/catalog/products";
 import { INDUSTRY_RECORDS } from "@/features/industries/industries";
-import { getSiteOrigin } from "@/lib/site-url";
+import { getSearchConfig, type SearchConfig } from "@/lib/site-url";
 import { LOCALES, DEFAULT_LOCALE, type Locale } from "./config";
 import { localizePath, type InternalPath } from "./paths";
 
@@ -12,8 +12,10 @@ import { localizePath, type InternalPath } from "./paths";
 export const OG_LOCALES: Record<Locale, string> = { sq: "sq_AL", en: "en_US" };
 
 /**
- * Page-level opt-out used by the quotation page, legal drafts and 404s. It wins
- * over the site-wide setting, so these pages stay noindex under every configuration.
+ * Robots directive for every page that is never indexed: the quotation page,
+ * legal drafts and 404s. It is also the root layout's site-wide default, so a
+ * page that does not decide for itself (such as vinext's root 404, which skips
+ * not-found metadata) is noindex under every configuration.
  */
 export const NOINDEX = { index: false, follow: true } as const;
 
@@ -40,7 +42,7 @@ function assertPagePath(path: InternalPath) {
 }
 
 /** Absolute URL of `path` in `locale`, or undefined when no SITE_URL is configured. */
-export function absoluteUrl(locale: Locale, path: InternalPath, origin = getSiteOrigin()): string | undefined {
+export function absoluteUrl(locale: Locale, path: InternalPath, origin = getSearchConfig().origin): string | undefined {
   assertPagePath(path);
   if (!origin) return undefined;
   const localized = localizePath(locale, path);
@@ -49,7 +51,7 @@ export function absoluteUrl(locale: Locale, path: InternalPath, origin = getSite
 }
 
 /** sq, en and x-default (Albanian) full URLs for one page. */
-export function languageAlternates(path: InternalPath, origin = getSiteOrigin()): Record<string, string> | undefined {
+export function languageAlternates(path: InternalPath, origin = getSearchConfig().origin): Record<string, string> | undefined {
   if (!origin) return undefined;
   const languages: Record<string, string> = {};
   for (const locale of LOCALES) languages[HREFLANG[locale]] = absoluteUrl(locale, path, origin)!;
@@ -66,16 +68,19 @@ type PageText = {
 };
 
 /**
- * Metadata for an indexable page: its localized title and description, plus
- * (only with a valid SITE_URL) a self-referencing canonical, reciprocal hreflang
- * alternates and og:url. Open Graph text and locales are always present.
+ * Metadata for an indexable page: its localized title and description, the
+ * indexing decision (index only with a valid SITE_URL and SEARCH_INDEXING=enabled),
+ * plus (only with a valid SITE_URL) a self-referencing canonical, reciprocal
+ * hreflang alternates and og:url. Open Graph text and locales are always present.
  */
-export function indexableMetadata(locale: Locale, path: InternalPath, page: PageText, origin = getSiteOrigin()): Metadata {
+export function indexableMetadata(locale: Locale, path: InternalPath, page: PageText, search: SearchConfig = getSearchConfig()): Metadata {
   assertPagePath(path);
+  const { origin, indexable } = search;
   const url = absoluteUrl(locale, path, origin);
   return {
     ...(page.title === undefined ? {} : { title: page.title }),
     description: page.description,
+    robots: indexable ? { index: true, follow: true } : NOINDEX,
     ...(url ? { alternates: { canonical: url, languages: languageAlternates(path, origin) } } : {}),
     openGraph: {
       type: "website",

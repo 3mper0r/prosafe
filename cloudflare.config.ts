@@ -37,8 +37,13 @@ export default defineConfig({
       // Required to sign quotation sessions (>= 32 random characters). Without
       // a valid value, submission fails closed.
       QUOTE_FORM_SECRET: bindings.secret(),
-      // SITE_URL is intentionally not declared: previews render noindex,
-      // robots.txt disallows crawling, and the sitemap is empty.
+      // Search configuration (docs/cloudflare-deployment.md#search-configuration).
+      // Empty by default: no canonical URLs, pages are noindex, robots.txt
+      // disallows crawling and the sitemap is empty. Indexing requires a valid
+      // SITE_URL and SEARCH_INDEXING="enabled", set identically here and in the
+      // build environment, and only after launch approval.
+      SITE_URL: bindings.text(""),
+      SEARCH_INDEXING: bindings.text(""),
     },
   }),
 });

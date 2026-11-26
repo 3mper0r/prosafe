@@ -156,11 +156,19 @@ test("Albanian validation messages render with interpolated limits for every rul
     [valid({ website: "x" }), "website", "Kjo kërkesë nuk mund të dërgohet. Ju lutemi provoni përsëri."],
     [valid({ items: [] }), "items", "Përzgjidhni të paktën një produkt para se të kërkoni ofertë."],
     [valid({ items: ["x"] }), "items", "Përzgjedhja juaj e produkteve nuk është e vlefshme. Kontrolloni artikujt e përzgjedhur."],
+    [valid({ items: [{ productId: "UNKNOWN", quantity: 1 }] }), "items", "Një produkt i përzgjedhur nuk është i disponueshëm. Kontrolloni përzgjedhjen tuaj."],
     [valid({ items: [{ productId: ids[0], quantity: 1 }, { productId: ids[0], quantity: 1 }] }), "items", "Çdo produkt mund të shfaqet vetëm një herë. Rregulloni sasinë e tij."],
     [valid({ items: [{ productId: ids[0], quantity: 1000 }] }), "items", "Çdo sasi duhet të jetë numër i plotë nga 1 deri në 999."],
     [valid({ items: Array.from({ length: 21 }, () => ({ productId: ids[0], quantity: 1 })) }), "items", "Përzgjidhni jo më shumë se 20 produkte."],
     [valid({ items: ids.slice(0, 6).map((productId) => ({ productId, quantity: 999 })) }), "items", "Përzgjedhja nuk mund të kalojë 5000 njësi gjithsej."],
     [valid({ locale: "de" }), "locale", "Zgjidhni një gjuhë të mbështetur."],
   ];
-  for (const [input, field, message] of cases) assert.equal(render(validateQuoteRequest(input, ids).errors[field]), message, field);
+  const covered = new Set();
+  for (const [input, field, message] of cases) {
+    const error = validateQuoteRequest(input, ids).errors[field];
+    covered.add(error.code);
+    assert.equal(render(error), message, field);
+  }
+  // Every translated validation message is produced by a real rule and checked above.
+  assert.deepEqual([...covered].sort(), Object.keys(t).sort());
 });

@@ -10,6 +10,11 @@
  * Fail-closed: every other combination renders noindex, disallows crawling and
  * keeps the sitemap empty. Quotation pages, legal drafts and 404s are noindex
  * under every configuration.
+ *
+ * An invalid SITE_URL fails the production build (prerendering), but at runtime
+ * it only disables search metadata and indexing, so the Worker still starts and
+ * every other route keeps working. A runtime fallback cannot change pages that
+ * were already prerendered: build and runtime values must match.
  */
 
 /** Only an explicitly configured public origin may appear in search metadata. */
@@ -38,8 +43,25 @@ export type SearchConfig = {
   indexable: boolean;
 };
 
+/** Set by Next.js and vinext while they prerender during a production build. */
+const isProductionBuild = () => process.env.NEXT_PHASE === "phase-production-build";
+
+let reportedInvalidSiteUrl = false;
+
 /** The single place that decides whether the site may be indexed. */
 export function getSearchConfig(siteUrl = process.env.SITE_URL, searchIndexing = process.env.SEARCH_INDEXING): SearchConfig {
-  const origin = getSiteOrigin(siteUrl);
+  let origin: string | undefined;
+  try {
+    origin = getSiteOrigin(siteUrl);
+  } catch (error) {
+    // Strict at build time: an invalid value must never be baked into a release.
+    if (isProductionBuild()) throw error;
+    // Runtime: fail closed (no URLs, not indexable). Log once per Worker instance, without the value.
+    if (!reportedInvalidSiteUrl) {
+      reportedInvalidSiteUrl = true;
+      console.error("Configuration error: SITE_URL must be an HTTPS origin without credentials, path, query, or fragment. Canonical URLs and search indexing are disabled.");
+    }
+    return { origin: undefined, indexable: false };
+  }
   return { origin, indexable: Boolean(origin) && isSearchIndexingEnabled(searchIndexing) };
 }

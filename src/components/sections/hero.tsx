@@ -32,7 +32,7 @@ export function Hero({ locale }: { locale: Locale }) {
             </span>
           </div>
           <p className={styles.sidebarSlogan}>
-            SAFETY WITHOUT
+            SAFETY WITHOUT{" "}
             <br />
             COMPROMISE.
           </p>
