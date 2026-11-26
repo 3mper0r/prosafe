@@ -1,0 +1,33 @@
+/* SQ / EN switcher: technical typography, accent for the active language. */
+.switcher ul {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+/* The mobile menu draws dividers under its list items; the switcher's items have none. */
+.switcher li {
+  border: 0;
+}
+.switcher a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--foreground-muted);
+  font-family: var(--font-technical);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  transition: color 180ms;
+}
+.switcher a:hover {
+  color: var(--foreground);
+}
+.switcher a[aria-current="true"] {
+  color: var(--accent);
+}
+.separator {
+  color: var(--industrial-gray);
+  font-family: var(--font-technical);
+  font-size: 0.75rem;
+}

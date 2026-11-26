@@ -6,7 +6,8 @@ import { compileQuoteSources } from "./helpers/compile-quote.mjs";
 const compiled = await compileQuoteSources();
 after(() => compiled.cleanup());
 const { createQuoteHandlers, quoteHttpConfigurationValid } = compiled.load("src/features/quote/request/http.server.ts");
-const { PRODUCTS } = compiled.load("src/features/catalog/products.ts");
+// Canonical English catalog (IDs and names used in the internal quotation email).
+const PRODUCTS = compiled.load("src/content/catalog.ts").getCatalog("en").products;
 const origin = "https://prosafe.example.test";
 const api = `${origin}/api/quote`;
 const valid = () => ({

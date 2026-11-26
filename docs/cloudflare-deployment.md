@@ -12,7 +12,7 @@ vinext is in beta. Versions are pinned exactly in `package.json`.
 | `cloudflare.config.ts` | Worker name (`prosafe`), compatibility date, static assets, and every runtime variable/secret declaration. |
 | `.dev.vars.example` | Template for local secrets. Copy to `.dev.vars` (ignored). |
 
-Setup: no data cache and no Cloudflare Images optimization. `vite.config.ts` enables build-time prerendering with vinext's read-only Static Assets page cache (`staticAssetsAdapter()`): every route that does not read request data (home, business pages, industries, product and industry details, Protection Explorer, robots.txt, sitemap.xml) is rendered once at build time and served from Workers Static Assets. The private cache files under `/_vinext/static-cache/` are only reachable through the Worker (`runWorkerFirst` covers `/*`). `/products`, `/find-your-protection`, `/quote`, and `/api/quote` read the query string or request-time configuration and still render on every request.
+Setup: no data cache and no Cloudflare Images optimization. `vite.config.ts` enables build-time prerendering with vinext's read-only Static Assets page cache (`staticAssetsAdapter()`): every page that does not read request data (home, business pages, industries, product and industry details, Protection Explorer) is rendered once at build time and served from Workers Static Assets. `robots.txt` and `sitemap.xml` are rendered by the Worker on each request, so they follow the Worker's search configuration. The private cache files under `/_vinext/static-cache/` are only reachable through the Worker (`runWorkerFirst` covers `/*`). `/products`, `/find-your-protection`, `/quote`, and `/api/quote` read the query string or request-time configuration and still render on every request.
 
 ## Scripts
 
@@ -25,20 +25,72 @@ Setup: no data cache and no Cloudflare Images optimization. `vite.config.ts` ena
 
 ## Environment variables and secrets
 
-The Worker sees only what `cloudflare.config.ts` declares. `.env*` files and shell variables are not copied into the Worker, and each deploy removes undeclared plain variables. Locally, `.dev.vars` supplies values only for declared secrets.
+The Worker sees only what `cloudflare.config.ts` declares. `.env*` files and shell variables are not copied into the Worker, and each deploy removes undeclared plain variables. Locally (`npm run dev:vinext`, `npm run start:vinext`), `.dev.vars`, `.env*` and shell variables supply values only for declared **secrets**. A `bindings.text(...)` variable always has the value written in `cloudflare.config.ts`; there is no local override.
 
 | Name | Type | Current value |
 | --- | --- | --- |
 | `QUOTE_DELIVERY_PROVIDER` | text | `none`. Delivery is disabled and the quote form shows that submission is unavailable. |
 | `QUOTE_FORM_SECRET` | secret | Required at deploy time; at least 32 random characters. Never committed. |
-| `SITE_URL` | not declared | Preview pages are `noindex`, `robots.txt` disallows all crawling, and the sitemap is empty. |
+| `SITE_URL` | text | `""` (empty). No canonical, hreflang or `og:url` metadata. |
+| `SEARCH_INDEXING` | text | `""` (empty). Indexing disabled: pages are `noindex`, `robots.txt` disallows all crawling, and the sitemap is empty. |
 
 To enable delivery later, after a Resend account, verified sender domain, sender address, and destination mailbox exist:
 
 1. In `cloudflare.config.ts`, set `QUOTE_DELIVERY_PROVIDER: bindings.text("resend")`, add `QUOTE_FROM_EMAIL`, `QUOTE_TO_EMAIL`, and `QUOTE_PUBLIC_ORIGIN` as `bindings.text(...)`, and add `QUOTE_RESEND_API_KEY: bindings.secret()`.
 2. Upload `QUOTE_RESEND_API_KEY` as a secret (see below), then deploy.
 
-Prerendered pages read `SITE_URL` from the build machine's environment, as with `next build`; request-rendered pages read the Worker variable. After launch approval, set the same HTTPS origin in both the build environment and `cloudflare.config.ts` (`bindings.text("https://…")`), then rebuild and deploy.
+## Search configuration
+
+Two settings, decided in one place (`getSearchConfig()` in `src/lib/site-url.ts`):
+
+| `SITE_URL` | `SEARCH_INDEXING` | Canonical, hreflang, `og:url` | Page robots | `robots.txt` | Sitemap |
+| --- | --- | --- | --- | --- | --- |
+| unset | any | none | `noindex` | disallow all | empty |
+| valid HTTPS origin | unset, `disabled` or any other value | yes | `noindex` | disallow all | empty |
+| valid HTTPS origin | `enabled` (exact) | yes | `index`, except opt-outs | allow; disallow `/api/`, `/quote`, `/en/quote` | 56 URLs |
+| invalid | any | build fails; at runtime treated as unset (see [invalid values](#invalid-values)) | | | |
+
+The quotation pages, legal drafts and all 404 pages are `noindex` under every configuration and never carry canonical or alternate URLs.
+
+### Build time and runtime must match
+
+The values are read in two places, so they must be identical in both:
+
+| Output | Next.js (`next build` / `next start`) | vinext on Workers |
+| --- | --- | --- |
+| Prerendered pages (home, business pages, industry and product pages, Protection Explorer) | build environment | build environment |
+| Request-rendered pages (`/products`, `/find-your-protection`, `/quote`) | server environment | Worker variables |
+| `robots.txt`, `sitemap.xml` | build environment (static) | Worker variables (rendered per request) |
+
+A mismatch produces inconsistent output, for example prerendered pages marked `index` while `robots.txt` still disallows all crawling and the sitemap is empty. To enable indexing after launch approval:
+
+1. Set `SITE_URL=https://prosaferks.com` and `SEARCH_INDEXING=enabled` in the build environment.
+2. Set the same two values in `cloudflare.config.ts`: `SITE_URL: bindings.text("https://prosaferks.com")`, `SEARCH_INDEXING: bindings.text("enabled")`.
+3. Rebuild and deploy, then check `/robots.txt`, `/sitemap.xml` and the page source of a prerendered page (`/about`) and a request-rendered page (`/products`).
+
+To disable indexing again, empty `SEARCH_INDEXING` in both places, rebuild and redeploy; `SITE_URL` alone keeps the canonical metadata without indexing.
+
+### Invalid values
+
+Only the exact value `enabled` grants indexing; any other `SEARCH_INDEXING` value fails closed.
+
+An invalid `SITE_URL` (not an HTTPS origin, or with a path, query or credentials) is handled differently at build time and at runtime (`getSearchConfig()` in `src/lib/site-url.ts`):
+
+- **Build time:** `next build` and `npm run build:vinext` fail while prerendering, so an invalid value is never baked into a release. Both frameworks set `NEXT_PHASE=phase-production-build` while prerendering; that is how the build is recognized.
+- **Runtime (Worker or `next start`):** the value is ignored and the site fails closed. No canonical, hreflang or `og:url`; request-rendered pages are `noindex`; `robots.txt` disallows all crawling; the sitemap is empty. Everything else, including `/quote` and `/api/quote`, works as before. One error is logged per Worker instance: `Configuration error: SITE_URL must be an HTTPS origin …`. The configured value is never logged.
+
+A runtime fallback cannot change pages that were prerendered at build time. They keep whatever the build environment produced. Fix the value in both places and rebuild; never rely on the fallback.
+
+### Testing runtime values locally
+
+Because text variables cannot be overridden locally, test Worker runtime behavior on a local build only:
+
+1. `npm run build:vinext` (with or without the build-time values under test).
+2. Edit the generated, gitignored `.cloudflare/output/v1/workers/default/worker.config.json`, changing the `value` of `SITE_URL` and `SEARCH_INDEXING`.
+3. `npm run start:vinext` and inspect the responses.
+4. Rebuild afterwards to discard the edit.
+
+Never commit test values to `cloudflare.config.ts`, and never deploy a build whose generated configuration was edited by hand.
 
 ## Deploying
 
@@ -66,6 +118,28 @@ Change a secret later:
 ```sh
 npx cf workers secrets update QUOTE_FORM_SECRET --worker prosafe --type secret_text
 ```
+
+## Releasing and rolling back
+
+Before a release:
+
+1. Tag the commit that is currently live (for example `prod-cf-2026-11-22` for the pre-localization site), so it can be rebuilt.
+2. From a clean checkout of the release commit, run `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` and `npm run build:vinext` with the intended build environment. For the current, unindexed release that means `SITE_URL` and `SEARCH_INDEXING` are **unset**.
+3. Confirm the generated `.cloudflare/output/v1/workers/default/worker.config.json` holds the intended variable values and `QUOTE_DELIVERY_PROVIDER` is `none`.
+
+Release with `npm run deploy:vinext`. Afterwards, check:
+- `/`, `/en` and a product page in each language return 200 with `lang="sq"` / `lang="en"`
+- an unknown URL returns 404
+- `/robots.txt` and `/sitemap.xml` match the intended search configuration
+- `/api/quote` reports `available: false` while delivery is disabled
+- Workers Logs shows no startup errors or new 5xx outcomes
+
+Rollback options, fastest first:
+
+- **Previous Worker version:** every deploy creates a Worker version. List them with `npx cf workers versions list --worker prosafe` and route traffic back to the last good version with `npx cf workers deployments create` (check `--help` for the exact flags before use), or use Workers & Pages → prosafe → Deployments → Rollback in the dashboard. Cloudflare versions hold code and configuration together, so variable values roll back with the code.
+- **Rebuild a tag:** check out the last good tag, `npm ci`, rebuild and deploy as above. Use this when the previous version is no longer listed.
+
+Neither path touches DNS. How a version rollback treats secrets changed since that version is not verified here: check Cloudflare's rollback documentation before relying on it, and record secret changes with each release.
 
 ## Workers Free limits that apply
 

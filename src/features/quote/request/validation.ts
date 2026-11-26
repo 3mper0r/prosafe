@@ -1,3 +1,4 @@
+import { isLocale } from "@/i18n/config";
 import { QUOTE_LIMITS } from "./limits";
 import type { QuoteErrors, QuoteRequest } from "./types";
 
@@ -21,18 +22,18 @@ export function validateQuoteRequest(input: unknown, knownProductIds: readonly s
     const raw = data[field];
     if (raw === undefined && !required) return "";
     if (typeof raw !== "string") {
-      errors[field] = "Enter a valid text value.";
+      errors[field] = { code: "invalid_text" };
       return "";
     }
     // Bound raw input too, so normalization cannot hide excessive input.
-    if (raw.length > QUOTE_LIMITS[field]) errors[field] = `Use ${QUOTE_LIMITS[field]} characters or fewer.`;
-    if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(raw)) errors[field] = "Remove unsupported control characters.";
-    if (field !== "requirements" && /[\r\n]/u.test(raw)) errors[field] = "Use a single line.";
+    if (raw.length > QUOTE_LIMITS[field]) errors[field] = { code: "too_long", params: { max: QUOTE_LIMITS[field] } };
+    if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(raw)) errors[field] = { code: "control_characters" };
+    if (field !== "requirements" && /[\r\n]/u.test(raw)) errors[field] = { code: "single_line" };
     const value = field === "requirements"
       ? raw.normalize("NFKC").replace(/\r\n?/gu, "\n").trim()
       : raw.normalize("NFKC").trim().replace(/\s+/gu, " ");
-    if (value.length > QUOTE_LIMITS[field]) errors[field] = `Use ${QUOTE_LIMITS[field]} characters or fewer.`;
-    if (required && !value) errors[field] = "This field is required.";
+    if (value.length > QUOTE_LIMITS[field]) errors[field] = { code: "too_long", params: { max: QUOTE_LIMITS[field] } };
+    if (required && !value) errors[field] = { code: "required" };
     return value;
   }
   const company = text("company", true);
@@ -40,43 +41,46 @@ export function validateQuoteRequest(input: unknown, knownProductIds: readonly s
   const emailInput = text("email", true);
   const at = emailInput.lastIndexOf("@");
   const email = at >= 0 ? emailInput.slice(0, at) + emailInput.slice(at).toLowerCase() : emailInput;
-  if (email && !isQuoteEmail(email)) errors.email = "Enter a valid business email address.";
+  if (email && !isQuoteEmail(email)) errors.email = { code: "invalid_email" };
   const phone = text("phone");
   const city = text("city");
   const requirements = text("requirements");
-  if (data.consent !== true) errors.consent = "Your privacy consent is required to submit this request.";
-  if (data.website !== undefined && (typeof data.website !== "string" || data.website !== "")) errors.website = "Unable to submit this request. Please try again.";
+  if (data.consent !== true) errors.consent = { code: "consent_required" };
+  if (data.website !== undefined && (typeof data.website !== "string" || data.website !== "")) errors.website = { code: "rejected" };
   const items: QuoteRequest["items"] = [];
   const seen = new Set<string>();
   const allowed = new Set(knownProductIds);
   let total = 0;
   if (!Array.isArray(data.items) || data.items.length < 1) {
-    errors.items = "Select at least one product before requesting a quote.";
+    errors.items = { code: "items_required" };
   } else if (data.items.length > QUOTE_LIMITS.maxItems) {
-    errors.items = `Select no more than ${QUOTE_LIMITS.maxItems} products.`;
+    errors.items = { code: "items_too_many", params: { max: QUOTE_LIMITS.maxItems } };
   } else {
     const candidates: unknown[] = data.items;
     for (const candidate of candidates) {
       if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
-        errors.items = "Your product selection is invalid. Review the selected items.";
+        errors.items = { code: "items_invalid" };
         continue;
       }
       const item = candidate as Record<string, unknown>;
       if (typeof item.productId !== "string" || !allowed.has(item.productId)) {
-        errors.items = "A selected product is unavailable. Review your selection.";
+        errors.items = { code: "item_unavailable" };
         continue;
       }
-      if (seen.has(item.productId)) errors.items = "Each product may appear only once. Adjust its quantity instead.";
+      if (seen.has(item.productId)) errors.items = { code: "item_duplicate" };
       seen.add(item.productId);
       if (typeof item.quantity !== "number" || !Number.isSafeInteger(item.quantity) || item.quantity < 1 || item.quantity > QUOTE_LIMITS.maxQuantity) {
-        errors.items = `Each quantity must be a whole number from 1 to ${QUOTE_LIMITS.maxQuantity}.`;
+        errors.items = { code: "item_quantity", params: { max: QUOTE_LIMITS.maxQuantity } };
         continue;
       }
       total += item.quantity;
       items.push({ productId: item.productId, quantity: item.quantity });
     }
   }
-  if (total > QUOTE_LIMITS.maxTotalQuantity) errors.items = `The selection cannot exceed ${QUOTE_LIMITS.maxTotalQuantity} total units.`;
+  if (total > QUOTE_LIMITS.maxTotalQuantity) errors.items = { code: "items_total", params: { max: QUOTE_LIMITS.maxTotalQuantity } };
+  // Optional preferred language; requests that omit it remain valid and unchanged.
+  const locale = data.locale;
+  if (locale !== undefined && (typeof locale !== "string" || !isLocale(locale))) errors.locale = { code: "invalid_locale" };
   if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { company, contact, email, phone, city, requirements, consent: true, website: "", items } };
+  return { ok: true, value: { company, contact, email, phone, city, requirements, consent: true, website: "", items, ...(typeof locale === "string" && isLocale(locale) ? { locale } : {}) } };
 }

@@ -3,26 +3,36 @@
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { useId, useState } from "react";
-import {
-  PRODUCT_CATEGORIES,
-  type CatalogCategoryLinks,
+import type {
+  CatalogCategoryLinks,
+  ProductCategoryId,
 } from "@/lib/product-categories";
-import { PROTECTION_ZONES } from "./zones";
+import type { ProtectionZone } from "@/content/catalog";
+import type { CategoryContent } from "@/content/types";
+import type { Dictionary } from "@/i18n/dictionaries/en";
+import { formatMessage } from "@/i18n/format";
+import { Lines } from "@/i18n/lines";
 import { WorkerIllustration } from "./worker-illustration";
 import styles from "./protection-explorer.module.css";
 
 type ProtectionExplorerProps = {
+  /** Only this page's widget messages are sent to the browser. */
+  messages: Dictionary["explorer"]["widget"];
+  /** Localized on the server; zone order defines the selector and markers. */
+  zones: readonly ProtectionZone[];
+  categories: Record<ProductCategoryId, Pick<CategoryContent, "name" | "description">>;
   catalogLinks?: CatalogCategoryLinks;
 };
 
 export function ProtectionExplorer({
+  messages: t,
+  zones,
+  categories,
   catalogLinks = {},
 }: ProtectionExplorerProps) {
   const instanceId = useId();
-  const [selectedZone, setSelectedZone] = useState<
-    (typeof PROTECTION_ZONES)[number]
-  >(PROTECTION_ZONES[0]);
-  const category = PRODUCT_CATEGORIES[selectedZone.categoryId];
+  const [selectedZone, setSelectedZone] = useState<ProtectionZone>(zones[0]);
+  const category = categories[selectedZone.categoryId];
   const catalogHref = catalogLinks[selectedZone.categoryId];
   const detailsId = `${instanceId}-details`;
   const headingId = `${instanceId}-category`;
@@ -35,9 +45,9 @@ export function ProtectionExplorer({
       data-selected-zone={selectedZone.id}
     >
       <fieldset className={styles.zonePicker}>
-        <legend>Select a protection zone</legend>
+        <legend>{t.zoneLegend}</legend>
         <div className={styles.zoneOptions}>
-          {PROTECTION_ZONES.map((zone) => (
+          {zones.map((zone) => (
             <label
               key={zone.id}
               className={styles.zoneOption}
@@ -58,7 +68,7 @@ export function ProtectionExplorer({
           ))}
         </div>
         <a href={`#${detailsId}`} className={styles.selectionJump}>
-          View {category.name.toLowerCase()}{" "}
+          {formatMessage(t.viewCategory, { category: category.name, categoryLower: category.name.toLowerCase() })}{" "}
           <ArrowDown size={16} aria-hidden="true" />
         </a>
       </fieldset>
@@ -69,10 +79,10 @@ export function ProtectionExplorer({
             className={styles.viewer}
             data-selected-zone={selectedZone.id}
             role="group"
-            aria-label="Full-body worker protection hotspots"
+            aria-label={t.hotspotsLabel}
           >
             <WorkerIllustration />
-            {PROTECTION_ZONES.map((zone, index) => (
+            {zones.map((zone, index) => (
               <button
                 key={zone.id}
                 type="button"
@@ -82,7 +92,7 @@ export function ProtectionExplorer({
                   top: `${zone.position.y}%`,
                 }}
                 data-zone-id={zone.id}
-                aria-label={`${zone.label} — ${PRODUCT_CATEGORIES[zone.categoryId].name}`}
+                aria-label={formatMessage(t.hotspotLabel, { zone: zone.label, category: categories[zone.categoryId].name })}
                 aria-pressed={selectedZone.id === zone.id}
                 aria-controls={detailsId}
                 onClick={() => setSelectedZone(zone)}
@@ -96,9 +106,7 @@ export function ProtectionExplorer({
             ))}
           </div>
           <figcaption>
-            Temporary full-body illustration.
-            <br />
-            Final worker photography will replace this visual.
+            <Lines lines={t.figcaption} />
           </figcaption>
         </figure>
 
@@ -110,7 +118,7 @@ export function ProtectionExplorer({
           data-category-id={selectedZone.categoryId}
         >
           <p className={styles.eyebrow}>
-            SELECTED PROTECTION / {selectedZone.label}
+            {formatMessage(t.selectedEyebrow, { zone: selectedZone.label })}
           </p>
           <div
             aria-live="polite"
@@ -126,7 +134,7 @@ export function ProtectionExplorer({
                 href={catalogHref}
                 className={`button button-primary ${styles.browseButton}`}
               >
-                Browse {category.name.toLowerCase()}{" "}
+                {formatMessage(t.browseCategory, { category: category.name, categoryLower: category.name.toLowerCase() })}{" "}
                 <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
             ) : (
@@ -137,19 +145,17 @@ export function ProtectionExplorer({
                   className={styles.unavailableButton}
                   aria-describedby={catalogStatusId}
                 >
-                  Browse {category.name.toLowerCase()}{" "}
+                  {formatMessage(t.browseCategory, { category: category.name, categoryLower: category.name.toLowerCase() })}{" "}
                   <ArrowUpRight size={18} aria-hidden="true" />
                 </button>
                 <p id={catalogStatusId} className={styles.catalogStatus}>
-                  Catalog coming soon. This category will become available when
-                  the product catalog launches.
+                  {t.catalogComingSoon}
                 </p>
               </>
             )}
           </div>
           <p className={styles.selectionNote}>
-            Explore another zone using the worker markers or zone selector. Your
-            selection stays visible until you choose another zone.
+            {t.selectionNote}
           </p>
         </section>
       </div>

@@ -1,10 +1,13 @@
+import type { Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
 import styles from "./catalog.module.css";
 
-export function DemoNotice() {
+export function DemoNotice({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).demoNotice;
   return (
-    <aside className={styles.demoNotice} aria-label="Demonstration catalog notice">
-      <strong>Demonstration catalog</strong>
-      <p>Fictional examples for exploring the catalog and quote selection. Not real inventory. Illustrations, specifications, and variants are illustrative; no manufacturer or certified safety performance is represented.</p>
+    <aside className={styles.demoNotice} aria-label={t.label}>
+      <strong>{t.title}</strong>
+      <p>{t.body}</p>
     </aside>
   );
 }

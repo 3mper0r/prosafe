@@ -2,7 +2,7 @@
 
 **Safety Without Compromise.** Workplace protection solutions for businesses, initially in Kosovo.
 
-M7 completes integration and QA of the M0–M6 MVP, fixes blank quotation configuration and keyboard focus after item removal, and adds domain-aware search metadata and response security headers. The approved design and photography are preserved. See [launch readiness, validation results, browser limitations, and public launch blockers](docs/launch-readiness.md). The business/legal pages remain incomplete drafts and delivery remains unavailable without configuration.
+The site is bilingual: Albanian (default, no URL prefix) and English (`/en`). See [localization](docs/localization.md) for routing, dictionaries, localized catalog data, search and the language switcher, and the [Albanian translation review](docs/translation-review-sq.md) (pending native-speaker review). The approved design and photography are preserved. See [launch readiness](docs/launch-readiness.md) for the M7 baseline and public launch blockers. The business/legal pages remain incomplete drafts and delivery remains unavailable without configuration.
 
 ## Setup
 
@@ -23,7 +23,7 @@ npm run lint       # ESLint; warnings fail the check
 npm run build      # Production build
 npm start          # Serve the completed production build
 npm run test:quote # Validation, delivery, idempotency, and HTTP security tests
-npm test           # All 30 quote and search-metadata tests
+npm test           # All unit tests (quote, search, localization, SEO)
 ```
 
 Cloudflare Workers builds use vinext alongside the unchanged Next.js commands:
@@ -38,11 +38,11 @@ See [Cloudflare deployment](docs/cloudflare-deployment.md) for configuration, se
 
 The type check generates Next.js route types before running `tsc --noEmit`, so it also works on a fresh clone. Next.js maintains the ignored `next-env.d.ts` file.
 
-Leave `SITE_URL` empty for local or staging builds: pages emit noindex, robots excludes crawling, and the sitemap has no URLs. Set the verified HTTPS public origin only after launch approval and rebuild. `QUOTE_PUBLIC_ORIGIN` is a separate runtime setting for quotation security. `.env.example` documents both. Public launch requires completion of the [readiness prerequisites](docs/launch-readiness.md).
+Search indexing needs two settings: `SITE_URL` (the public HTTPS origin, which enables canonical, hreflang and `og:url` metadata) and `SEARCH_INDEXING=enabled` (indexing permission). With anything less, pages emit noindex, robots.txt disallows crawling and the sitemap is empty. Leave `SEARCH_INDEXING` unset until launch approval; see [Cloudflare deployment](docs/cloudflare-deployment.md#search-configuration) for build and runtime requirements. `QUOTE_PUBLIC_ORIGIN` is a separate runtime setting for quotation security. `.env.example` documents both. Public launch requires completion of the [readiness prerequisites](docs/launch-readiness.md).
 
 ## Architecture
 
-- `src/app`: App Router routes, root layout, SEO metadata, and global styles. Components render on the server by default.
+- `src/app`: App Router routes. `src/app/(sq)` (Albanian, unprefixed) and `src/app/en` are thin wrappers around the shared views in `src/views`; `src/i18n` holds the language configuration, dictionaries, path helpers and SEO metadata; `src/content` holds localized catalog text. Components render on the server by default.
 - Development and production builds use Next.js's supported Webpack bundler because this environment blocks the local worker ports required by Turbopack.
 - `src/app/globals.css`: CSS design tokens mapped to Tailwind v4 utilities with `@theme inline`. Approved brand colors are preserved; a lighter supporting gray provides readable small text. Responsive typography, focus indicators, and reduced-motion defaults live here.
 - Barlow Condensed Bold and Manrope Variable are self-hosted with `next/font/local`. System monospace handles technical labels. Font licenses and photography provenance are documented in [docs/assets.md](docs/assets.md).
@@ -73,4 +73,4 @@ The five industry guides cover Construction, Manufacturing, Logistics & Warehous
 
 The quote selection supports adding, quantity changes (1–999), removal, selected-product counts, and browser persistence. The form adds business contact details, optional requirements, and required purpose-specific privacy consent. Contact fields stay in page memory and are not persisted to browser storage. Requests contain up to 20 unique products and 5,000 total units. Variants remain informational.
 
-Email submission requires a configured provider and destination. Failures preserve form input and selections; identical retries reuse the delivery idempotency key. Confirmed acceptance clears submitted selections while preserving concurrent changes from another tab. Success means the email provider accepted the request, not guaranteed inbox delivery or an order. No database, accounts, checkout, payments, CRM, or deployment infrastructure is added. Real manufacturer data and photography remain pending. Development stops at M7. No deployment, commit, or push is performed.
+Email submission requires a configured provider and destination. Failures preserve form input and selections; identical retries reuse the delivery idempotency key. Confirmed acceptance clears submitted selections while preserving concurrent changes from another tab. Success means the email provider accepted the request, not guaranteed inbox delivery or an order. No database, accounts, checkout, payments, CRM, or deployment infrastructure is added. Real manufacturer data and photography remain pending.

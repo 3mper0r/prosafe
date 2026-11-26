@@ -8,7 +8,8 @@ after(() => compiled.cleanup());
 const { validateQuoteRequest, isQuoteEmail } = compiled.load("src/features/quote/request/validation.ts");
 const { submitQuoteRequest } = compiled.load("src/features/quote/request/submission.server.ts");
 const { getQuoteDelivery, getQuoteDeliveryAvailability, createQuoteMessage } = compiled.load("src/features/quote/request/delivery.server.ts");
-const { PRODUCTS } = compiled.load("src/features/catalog/products.ts");
+// Canonical English catalog (IDs and names used in the internal quotation email).
+const PRODUCTS = compiled.load("src/content/catalog.ts").getCatalog("en").products;
 const ids = PRODUCTS.map((product) => product.id);
 const valid = () => ({
   company: "Example & Sons", contact: "Sample Contact", email: "Contact@example.test",
@@ -16,10 +17,11 @@ const valid = () => ({
   items: [{ productId: ids[0], quantity: 2 }],
 });
 const accepted = () => ({ deliver: async () => ({ accepted: true, reference: "provider-acknowledged-id" }) });
-function rejected(input, field) {
+/** Field errors are language-independent codes (rendered by the client dictionaries). */
+function rejected(input, field, code, max) {
   const result = validateQuoteRequest(input, ids);
   assert.equal(result.ok, false);
-  assert.equal(typeof result.errors[field], "string");
+  assert.deepEqual(result.errors[field], max === undefined ? { code } : { code, params: { max } }, `${field}: ${JSON.stringify(input)?.slice(0, 80)}`);
 }
 
 test("validates and normalizes business input while accepting ordinary email domains", () => {
@@ -33,25 +35,29 @@ test("validates and normalizes business input while accepting ordinary email dom
 });
 
 test("rejects missing, non-string, overlong, and control-character form fields", () => {
-  rejected(null, "company");
-  for (const field of ["company", "contact", "email"]) rejected({ ...valid(), [field]: "   " }, field);
-  for (const field of ["company", "contact", "email", "phone", "city", "requirements"]) rejected({ ...valid(), [field]: 123 }, field);
-  for (const [field, maximum] of Object.entries({ company: 120, contact: 100, email: 254, phone: 40, city: 160, requirements: 3000 })) rejected({ ...valid(), [field]: "x".repeat(maximum + 1) }, field);
-  rejected({ ...valid(), company: "Test\u0000Company" }, "company");
-  rejected({ ...valid(), phone: "123\nBcc: test" }, "phone");
-  rejected({ ...valid(), consent: "true" }, "consent");
-  rejected({ ...valid(), consent: false }, "consent");
-  rejected({ ...valid(), website: "https://spam.test" }, "website");
+  rejected(null, "company", "invalid_text");
+  for (const field of ["company", "contact", "email"]) rejected({ ...valid(), [field]: "   " }, field, "required");
+  for (const field of ["company", "contact", "email", "phone", "city", "requirements"]) rejected({ ...valid(), [field]: 123 }, field, "invalid_text");
+  for (const [field, maximum] of Object.entries({ company: 120, contact: 100, phone: 40, city: 160, requirements: 3000 })) rejected({ ...valid(), [field]: "x".repeat(maximum + 1) }, field, "too_long", maximum);
+  // Unchanged pre-M9.3 precedence: the later email-format check replaces "too long" for email.
+  rejected({ ...valid(), email: "x".repeat(255) }, "email", "invalid_email");
+  rejected({ ...valid(), company: "Test\u0000Company" }, "company", "control_characters");
+  rejected({ ...valid(), phone: "123\nBcc: test" }, "phone", "single_line");
+  rejected({ ...valid(), email: "not-an-email" }, "email", "invalid_email");
+  rejected({ ...valid(), consent: "true" }, "consent", "consent_required");
+  rejected({ ...valid(), consent: false }, "consent", "consent_required");
+  rejected({ ...valid(), website: "https://spam.test" }, "website", "rejected");
 });
 
 test("rejects empty, unknown, duplicate, manipulated, and excessive item selections", () => {
-  rejected({ ...valid(), items: [] }, "items");
-  rejected({ ...valid(), items: "not an array" }, "items");
-  rejected({ ...valid(), items: [{ productId: "UNKNOWN", quantity: 1 }] }, "items");
-  rejected({ ...valid(), items: [{ productId: ids[0], quantity: 1 }, { productId: ids[0], quantity: 2 }] }, "items");
-  for (const quantity of [0, -1, 1.5, "2", 1000, Number.MAX_SAFE_INTEGER, NaN, Infinity]) rejected({ ...valid(), items: [{ productId: ids[0], quantity }] }, "items");
-  rejected({ ...valid(), items: Array.from({ length: 21 }, () => ({ productId: ids[0], quantity: 1 })) }, "items");
-  rejected({ ...valid(), items: ids.slice(0, 6).map((productId) => ({ productId, quantity: 999 })) }, "items");
+  rejected({ ...valid(), items: [] }, "items", "items_required");
+  rejected({ ...valid(), items: "not an array" }, "items", "items_required");
+  rejected({ ...valid(), items: ["not an object"] }, "items", "items_invalid");
+  rejected({ ...valid(), items: [{ productId: "UNKNOWN", quantity: 1 }] }, "items", "item_unavailable");
+  rejected({ ...valid(), items: [{ productId: ids[0], quantity: 1 }, { productId: ids[0], quantity: 2 }] }, "items", "item_duplicate");
+  for (const quantity of [0, -1, 1.5, "2", 1000, Number.MAX_SAFE_INTEGER, NaN, Infinity]) rejected({ ...valid(), items: [{ productId: ids[0], quantity }] }, "items", "item_quantity", 999);
+  rejected({ ...valid(), items: Array.from({ length: 21 }, () => ({ productId: ids[0], quantity: 1 })) }, "items", "items_too_many", 20);
+  rejected({ ...valid(), items: ids.slice(0, 6).map((productId) => ({ productId, quantity: 999 })) }, "items", "items_total", 5000);
 });
 
 test("strips client-provided product metadata and forwards only server catalog values", async () => {

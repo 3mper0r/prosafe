@@ -1,27 +1,23 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/ui/wordmark";
+import type { Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { localizePath } from "@/i18n/paths";
 import styles from "./footer.module.css";
 
-const footerLinks = [
-  { href: "/about", label: "About" },
-  { href: "/brands", label: "Brands" },
-  { href: "/contact", label: "Contact" },
-  { href: "/privacy", label: "Privacy (draft)" },
-  { href: "/imprint", label: "Imprint (draft)" },
-] as const;
-
-export function Footer() {
+export function Footer({ locale }: { locale: Locale }) {
+  const { common, footer: t } = getDictionary(locale);
   return (
     <footer className="site-footer">
-      <Wordmark />
+      <Wordmark locale={locale} label={common.homeLabel} />
       <p className="technical-label">SAFETY WITHOUT COMPROMISE.</p>
-      <nav className={styles.navigation} aria-label="Company and legal navigation">
+      <nav className={styles.navigation} aria-label={t.navigationLabel}>
         <ul>
-          {footerLinks.map(({ href, label }) => <li key={href}><Link href={href}>{label}</Link></li>)}
+          {t.links.map(({ href, label }) => <li key={href}><Link href={localizePath(locale, href)}>{label}</Link></li>)}
         </ul>
       </nav>
       <a className="photo-credit" href="https://www.pexels.com/license/">
-        Material photography: Kindel Media & Nothing Ahead / Pexels
+        {t.photoCredit}
       </a>
     </footer>
   );

@@ -15,8 +15,13 @@ export async function compileQuoteSources(extraSources = []) {
   const sources = (await readdir(resolve(projectRoot, folder)))
     .filter((name) => name.endsWith(".ts"))
     .map((name) => `${folder}/${name}`);
-  sources.push("src/features/catalog/products.ts", "src/features/catalog/types.ts", "src/lib/product-categories.ts");
-  sources.push(...extraSources);
+  // Catalog core data and localized content used by the quote service (English names in emails).
+  sources.push(
+    "src/features/catalog/products.ts", "src/features/catalog/types.ts", "src/features/catalog/search.ts", "src/lib/product-categories.ts",
+    "src/features/industries/industries.ts", "src/features/protection-explorer/zones.ts", "src/i18n/config.ts",
+    "src/content/types.ts", "src/content/en.ts", "src/content/sq.ts", "src/content/catalog.ts",
+  );
+  sources.push(...extraSources.filter((source) => !sources.includes(source)));
   for (const source of sources) {
     const input = await readFile(resolve(projectRoot, source), "utf8");
     const output = ts.transpileModule(input, {

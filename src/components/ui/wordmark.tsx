@@ -1,8 +1,11 @@
 import Link from "next/link";
+import type { Locale } from "@/i18n/config";
+import { localizePath } from "@/i18n/paths";
 
-export function Wordmark() {
+/** Rendered by both server components and the client Header, so it takes its label as a prop. */
+export function Wordmark({ locale, label }: { locale: Locale; label: string }) {
   return (
-    <Link href="/" className="wordmark" aria-label="PROSAFE home">
+    <Link href={localizePath(locale, "/")} className="wordmark" aria-label={label}>
       <span className="brand-mark" aria-hidden="true">
         <span />
       </span>
