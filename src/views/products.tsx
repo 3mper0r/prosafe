@@ -13,10 +13,11 @@ import { formatMessage, formatPlural } from "@/i18n/format";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata } from "@/i18n/seo";
 
 export function productsMetadata(locale: Locale): Metadata {
   const t = getDictionary(locale).catalog;
-  return { title: t.metaTitle, description: t.metaDescription };
+  return indexableMetadata(locale, "/products", { title: t.metaTitle, description: t.metaDescription });
 }
 
 export function ProductsView({ locale, searchParams: query }: {

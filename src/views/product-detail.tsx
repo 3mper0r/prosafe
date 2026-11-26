@@ -12,6 +12,7 @@ import type { Locale } from "@/i18n/config";
 import { formatMessage } from "@/i18n/format";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata, NOINDEX } from "@/i18n/seo";
 
 export function productStaticParams() {
   return PRODUCT_RECORDS.map(({ slug }) => ({ slug }));
@@ -20,9 +21,10 @@ export function productStaticParams() {
 export function productDetailMetadata(locale: Locale, slug: string): Metadata {
   const t = getDictionary(locale).productDetail;
   const product = getCatalog(locale).getProductBySlug(slug);
+  // Unknown slugs render the 404 and get no canonical or alternates.
   return product
-    ? { title: formatMessage(t.metaTitle, { name: product.name }), description: formatMessage(t.metaDescription, { summary: product.summary }) }
-    : { title: t.notFoundTitle };
+    ? indexableMetadata(locale, `/products/${product.slug}`, { title: formatMessage(t.metaTitle, { name: product.name }), description: formatMessage(t.metaDescription, { summary: product.summary }) })
+    : { title: t.notFoundTitle, robots: NOINDEX };
 }
 
 export function ProductDetailView({ locale, slug }: { locale: Locale; slug: string }) {

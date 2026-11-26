@@ -11,10 +11,11 @@ import styles from "@/features/catalog/catalog.module.css";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Lines } from "@/i18n/lines";
+import { NOINDEX } from "@/i18n/seo";
 
 export function quoteMetadata(locale: Locale): Metadata {
   const t = getDictionary(locale).quote;
-  return { title: t.metaTitle, description: t.metaDescription, robots: { index: false, follow: true } };
+  return { title: t.metaTitle, description: t.metaDescription, robots: NOINDEX };
 }
 
 export async function QuoteView({ locale }: { locale: Locale }) {

@@ -12,10 +12,11 @@ import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata } from "@/i18n/seo";
 
 export function findYourProtectionMetadata(locale: Locale): Metadata {
   const t = getDictionary(locale).findYourProtection;
-  return { title: t.metaTitle, description: t.metaDescription };
+  return indexableMetadata(locale, "/find-your-protection", { title: t.metaTitle, description: t.metaDescription });
 }
 
 export function FindYourProtectionView({ locale, searchParams }: {

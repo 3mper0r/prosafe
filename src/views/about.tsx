@@ -6,10 +6,11 @@ import styles from "@/components/layout/business-page.module.css";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata } from "@/i18n/seo";
 
 export function aboutMetadata(locale: Locale): Metadata {
   const { about } = getDictionary(locale);
-  return { title: about.metaTitle, description: about.metaDescription };
+  return indexableMetadata(locale, "/about", { title: about.metaTitle, description: about.metaDescription });
 }
 
 /** Shared /about implementation for every locale. */

@@ -10,10 +10,11 @@ import { getCatalog } from "@/content/catalog";
 import type { CategoryContent } from "@/content/types";
 import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata } from "@/i18n/seo";
 
 export function protectionExplorerMetadata(locale: Locale): Metadata {
   const t = getDictionary(locale).explorer;
-  return { title: t.metaTitle, description: t.metaDescription };
+  return indexableMetadata(locale, "/protection-explorer", { title: t.metaTitle, description: t.metaDescription });
 }
 
 export function ProtectionExplorerView({ locale }: { locale: Locale }) {

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { getSiteOrigin } from "@/lib/site-url";
+import { getSearchConfig } from "@/lib/site-url";
 import type { Locale } from "@/i18n/config";
 import { getClientMessages, getDictionary } from "@/i18n/get-dictionary";
 import { LocaleProvider } from "@/i18n/locale-context";
@@ -9,11 +9,12 @@ import "./globals.css";
 
 /** Shared by the Albanian `(sq)` and English `en` root layouts. */
 export function rootMetadata(locale: Locale): Metadata {
-  const siteOrigin = getSiteOrigin();
+  const { origin, indexable } = getSearchConfig();
   const { meta } = getDictionary(locale);
   return {
-    metadataBase: siteOrigin ? new URL(siteOrigin) : undefined,
-    robots: { index: Boolean(siteOrigin), follow: true },
+    metadataBase: origin ? new URL(origin) : undefined,
+    // Indexable only with SITE_URL and SEARCH_INDEXING=enabled; pages may still opt out with noindex.
+    robots: { index: indexable, follow: true },
     title: { default: meta.defaultTitle, template: "%s | PROSAFE" },
     description: meta.description,
     applicationName: "PROSAFE",

@@ -12,7 +12,7 @@ vinext is in beta. Versions are pinned exactly in `package.json`.
 | `cloudflare.config.ts` | Worker name (`prosafe`), compatibility date, static assets, and every runtime variable/secret declaration. |
 | `.dev.vars.example` | Template for local secrets. Copy to `.dev.vars` (ignored). |
 
-Setup: no data cache and no Cloudflare Images optimization. `vite.config.ts` enables build-time prerendering with vinext's read-only Static Assets page cache (`staticAssetsAdapter()`): every route that does not read request data (home, business pages, industries, product and industry details, Protection Explorer, robots.txt, sitemap.xml) is rendered once at build time and served from Workers Static Assets. The private cache files under `/_vinext/static-cache/` are only reachable through the Worker (`runWorkerFirst` covers `/*`). `/products`, `/find-your-protection`, `/quote`, and `/api/quote` read the query string or request-time configuration and still render on every request.
+Setup: no data cache and no Cloudflare Images optimization. `vite.config.ts` enables build-time prerendering with vinext's read-only Static Assets page cache (`staticAssetsAdapter()`): every page that does not read request data (home, business pages, industries, product and industry details, Protection Explorer) is rendered once at build time and served from Workers Static Assets. `robots.txt` and `sitemap.xml` are rendered by the Worker on each request, so they follow the Worker's search configuration. The private cache files under `/_vinext/static-cache/` are only reachable through the Worker (`runWorkerFirst` covers `/*`). `/products`, `/find-your-protection`, `/quote`, and `/api/quote` read the query string or request-time configuration and still render on every request.
 
 ## Scripts
 
@@ -31,14 +31,44 @@ The Worker sees only what `cloudflare.config.ts` declares. `.env*` files and she
 | --- | --- | --- |
 | `QUOTE_DELIVERY_PROVIDER` | text | `none`. Delivery is disabled and the quote form shows that submission is unavailable. |
 | `QUOTE_FORM_SECRET` | secret | Required at deploy time; at least 32 random characters. Never committed. |
-| `SITE_URL` | not declared | Preview pages are `noindex`, `robots.txt` disallows all crawling, and the sitemap is empty. |
+| `SITE_URL` | not declared | No canonical, hreflang or `og:url` metadata. |
+| `SEARCH_INDEXING` | not declared | Indexing disabled: pages are `noindex`, `robots.txt` disallows all crawling, and the sitemap is empty. |
 
 To enable delivery later, after a Resend account, verified sender domain, sender address, and destination mailbox exist:
 
 1. In `cloudflare.config.ts`, set `QUOTE_DELIVERY_PROVIDER: bindings.text("resend")`, add `QUOTE_FROM_EMAIL`, `QUOTE_TO_EMAIL`, and `QUOTE_PUBLIC_ORIGIN` as `bindings.text(...)`, and add `QUOTE_RESEND_API_KEY: bindings.secret()`.
 2. Upload `QUOTE_RESEND_API_KEY` as a secret (see below), then deploy.
 
-Prerendered pages read `SITE_URL` from the build machine's environment, as with `next build`; request-rendered pages read the Worker variable. After launch approval, set the same HTTPS origin in both the build environment and `cloudflare.config.ts` (`bindings.text("https://…")`), then rebuild and deploy.
+## Search configuration
+
+Two settings, decided in one place (`getSearchConfig()` in `src/lib/site-url.ts`):
+
+| `SITE_URL` | `SEARCH_INDEXING` | Canonical, hreflang, `og:url` | Page robots | `robots.txt` | Sitemap |
+| --- | --- | --- | --- | --- | --- |
+| unset | any | none | `noindex` | disallow all | empty |
+| valid HTTPS origin | unset, `disabled` or any other value | yes | `noindex` | disallow all | empty |
+| valid HTTPS origin | `enabled` (exact) | yes | `index`, except opt-outs | allow; disallow `/api/`, `/quote`, `/en/quote` | 56 URLs |
+| invalid | any | build or request fails with a `SITE_URL` error | | | |
+
+The quotation pages, legal drafts and all 404 pages are `noindex` under every configuration and never carry canonical or alternate URLs.
+
+### Build time and runtime must match
+
+The values are read in two places, so they must be identical in both:
+
+| Output | Next.js (`next build` / `next start`) | vinext on Workers |
+| --- | --- | --- |
+| Prerendered pages (home, business pages, industry and product pages, Protection Explorer) | build environment | build environment |
+| Request-rendered pages (`/products`, `/find-your-protection`, `/quote`) | server environment | Worker variables |
+| `robots.txt`, `sitemap.xml` | build environment (static) | Worker variables (rendered per request) |
+
+A mismatch produces inconsistent output, for example prerendered pages marked `index` while `robots.txt` still disallows all crawling and the sitemap is empty. To enable indexing after launch approval:
+
+1. Set `SITE_URL=https://prosaferks.com` and `SEARCH_INDEXING=enabled` in the build environment.
+2. Declare the same two values in `cloudflare.config.ts` as `bindings.text(...)`.
+3. Rebuild and deploy, then check `/robots.txt`, `/sitemap.xml` and the page source of a prerendered and a request-rendered page.
+
+To disable indexing again, remove `SEARCH_INDEXING` from both places and redeploy; `SITE_URL` alone keeps the canonical metadata without indexing.
 
 ## Deploying
 

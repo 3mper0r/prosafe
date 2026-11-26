@@ -11,10 +11,11 @@ import { formatMessage } from "@/i18n/format";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata } from "@/i18n/seo";
 
 export function industriesMetadata(locale: Locale): Metadata {
   const t = getDictionary(locale).industries;
-  return { title: t.metaTitle, description: t.metaDescription };
+  return indexableMetadata(locale, "/industries", { title: t.metaTitle, description: t.metaDescription });
 }
 
 export function IndustriesView({ locale }: { locale: Locale }) {

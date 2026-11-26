@@ -38,7 +38,7 @@ See [Cloudflare deployment](docs/cloudflare-deployment.md) for configuration, se
 
 The type check generates Next.js route types before running `tsc --noEmit`, so it also works on a fresh clone. Next.js maintains the ignored `next-env.d.ts` file.
 
-Leave `SITE_URL` empty for local or staging builds: pages emit noindex, robots excludes crawling, and the sitemap has no URLs. Set the verified HTTPS public origin only after launch approval and rebuild. `QUOTE_PUBLIC_ORIGIN` is a separate runtime setting for quotation security. `.env.example` documents both. Public launch requires completion of the [readiness prerequisites](docs/launch-readiness.md).
+Search indexing needs two settings: `SITE_URL` (the public HTTPS origin, which enables canonical, hreflang and `og:url` metadata) and `SEARCH_INDEXING=enabled` (indexing permission). With anything less, pages emit noindex, robots.txt disallows crawling and the sitemap is empty. Leave `SEARCH_INDEXING` unset until launch approval; see [Cloudflare deployment](docs/cloudflare-deployment.md#search-configuration) for build and runtime requirements. `QUOTE_PUBLIC_ORIGIN` is a separate runtime setting for quotation security. `.env.example` documents both. Public launch requires completion of the [readiness prerequisites](docs/launch-readiness.md).
 
 ## Architecture
 

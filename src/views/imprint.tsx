@@ -6,10 +6,11 @@ import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
+import { NOINDEX } from "@/i18n/seo";
 
 export function imprintMetadata(locale: Locale): Metadata {
   const t = getDictionary(locale).imprint;
-  return { title: t.metaTitle, description: t.metaDescription, robots: { index: false, follow: true } };
+  return { title: t.metaTitle, description: t.metaDescription, robots: NOINDEX };
 }
 
 function Items({ items }: { items: readonly { term: string; text: string }[] }) {

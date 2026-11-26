@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "@/features/catalog/catalog.module.css";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/paths";
+import { NOINDEX } from "@/i18n/seo";
+
+/** Localized 404 title and an explicit noindex; never a canonical or alternates. */
+export function productNotFoundMetadata(locale: Locale): Metadata {
+  return { title: getDictionary(locale).productDetail.notFoundTitle, robots: NOINDEX };
+}
 
 export function ProductNotFoundView({ locale }: { locale: Locale }) {
   const t = getDictionary(locale).productNotFound;

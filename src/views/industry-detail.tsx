@@ -10,6 +10,7 @@ import styles from "@/features/industries/industries.module.css";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata, NOINDEX } from "@/i18n/seo";
 
 export function industryStaticParams() {
   return INDUSTRY_RECORDS.map(({ slug }) => ({ slug }));
@@ -17,9 +18,10 @@ export function industryStaticParams() {
 
 export function industryDetailMetadata(locale: Locale, slug: string): Metadata {
   const industry = getCatalog(locale).getIndustryBySlug(slug);
+  // Unknown slugs render the 404 and get no canonical or alternates.
   return industry
-    ? { title: industry.name, description: industry.description }
-    : { title: getDictionary(locale).industryDetail.notFoundTitle };
+    ? indexableMetadata(locale, `/industries/${industry.slug}`, { title: industry.name, description: industry.description })
+    : { title: getDictionary(locale).industryDetail.notFoundTitle, robots: NOINDEX };
 }
 
 export function IndustryDetailView({ locale, slug }: { locale: Locale; slug: string }) {

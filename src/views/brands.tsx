@@ -7,10 +7,11 @@ import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Lines } from "@/i18n/lines";
 import { localizePath } from "@/i18n/paths";
+import { indexableMetadata } from "@/i18n/seo";
 
 export function brandsMetadata(locale: Locale): Metadata {
   const t = getDictionary(locale).brands;
-  return { title: t.metaTitle, description: t.metaDescription };
+  return indexableMetadata(locale, "/brands", { title: t.metaTitle, description: t.metaDescription });
 }
 
 export function BrandsView({ locale }: { locale: Locale }) {
